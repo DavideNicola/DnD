@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tiamat Head Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: #eee;
+            padding: 20px;
+        }
+        h1 { color: #ffcc00; }
+        .head-list, .trait-box {
+            padding: 10px;
+            border: 1px solid #444;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            background: #1a1a1a;
+        }
+        button {
+            background: #333;
+            color: #eee;
+            border: 1px solid #666;
+            padding: 5px 12px;
+            margin: 3px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover { background: #555; }
+        .removed { color: #b33; text-decoration: line-through; }
+    </style>
+</head>
+<body>
+
+<h1>Tiamat Head Tracker</h1>
+
+<div class="head-list">
+    <h3>Active Heads</h3>
+    <div id="activeHeads"></div>
+</div>
+
+<div class="head-list">
+    <h3>Traits & Breath Weapons</h3>
+    <div id="traitsBox"></div>
+</div>
+
+<script>
+// -----------------------------------------------------------
+// Dragon Head Data
+// -----------------------------------------------------------
+
+const HEADS = {
+    "Red": {
+        traits: ["Scorched Terrain"],
+        breath: "Fire Cone (60 ft., 13d12 fire)"
+    },
+    "Blue": {
+        traits: ["Storm Caller"],
+        breath: "Lightning Line (120 ft., 16d10 lightning)"
+    },
+    "Green": {
+        traits: ["Poisonous Aura"],
+        breath: "Poison Cone (60 ft., 14d8 poison)"
+    },
+    "Black": {
+        traits: ["Swamp Stalker"],
+        breath: "Acid Line (60 ft., 15d8 acid)"
+    },
+    "White": {
+        traits: ["Chilling Aura"],
+        breath: "Cold Cone (60 ft., 16d8 cold)"
+    },
+    "Brown": {
+        traits: ["Earth Swimmer", "Burrowing Ambush"],
+        breath: "Sandstorm Cone (60 ft., 14d6 bludgeoning + blind)"
+    },
+    "Purple": {
+        traits: ["Psychic Disruption Aura", "Innate Teleportation"],
+        breath: "Psychic Cone (60 ft., 20d6 psychic)"
+    },
+    "Gray": {
+        traits: ["Echoing Presence", "Sonic Acceleration"],
+        breath: "Thunder Cone/Line (60 ft., 12d8 thunder)"
+    }
+};
+
+// Initial 5 heads
+let active = ["Red", "Blue", "Green", "Black", "White"];
+
+// -----------------------------------------------------------
+// Render Heads and Traits
+// -----------------------------------------------------------
+function renderHeads() {
+    const box = document.getElementById("activeHeads");
+    box.innerHTML = "";
+
+    active.forEach(head => {
+        const div = document.createElement("div");
+        div.innerHTML = `<b>${head} Head</b> 
+        <button onclick="removeHead('${head}')">Remove</button>`;
+        box.appendChild(div);
+    });
+
+    renderTraits();
+}
+
+function renderTraits() {
+    const box = document.getElementById("traitsBox");
+    box.innerHTML = "";
+
+    active.forEach(head => {
+        const h = HEADS[head];
+        const div = document.createElement("div");
+        div.classList.add("trait-box");
+
+        div.innerHTML = `
+            <h4>${head} Head</h4>
+            <b>Traits:</b> <br> ${h.traits.join("<br>")} <br><br>
+            <b>Breath Weapon:</b> ${h.breath}
+        `;
+        box.appendChild(div);
+    });
+}
+
+// -----------------------------------------------------------
+// Remove a Head → Regrowth Logic
+// -----------------------------------------------------------
+function removeHead(head) {
+    if (!active.includes(head)) return;
+
+    active = active.filter(h => h !== head);
+
+    // Which heads are missing?
+    const missing = Object.keys(HEADS).filter(h => !active.includes(h));
+
+    // Regrowth roll
+    const roll = Math.ceil(Math.random() * 4);
+
+    let regrownHead = null;
+
+    // Determine eligible categories
+    const chromaticMissing = ["Red","Blue","Green","Black","White"]
+        .filter(h => missing.includes(h));
+    const hybridMissing = ["Brown","Purple","Gray"]
+        .filter(h => missing.includes(h));
+
+    if (missing.length === 1) {
+        // Only one head missing → auto regrow
+        regrownHead = missing[0];
+    } else {
+        if (roll === 1 && hybridMissing.length > 0) {
+            // Brown
+            if (hybridMissing.includes("Brown")) regrownHead = "Brown";
+        } else if (roll === 2 && hybridMissing.length > 1) {
+            // Purple
+            if (hybridMissing.includes("Purple")) regrownHead = "Purple";
+        } else if (roll === 3 && hybridMissing.length > 2) {
+            // Gray
+            if (hybridMissing.includes("Gray")) regrownHead = "Gray";
+        } else {
+            // Chromatic fallback
+            if (chromaticMissing.length > 0) {
+                regrownHead = chromaticMissing[
+                    Math.floor(Math.random() * chromaticMissing.length)
+                ];
+            }
+        }
+    }
+
+    if (!regrownHead) {
+        // Final fallback to ANY missing
+        regrownHead = missing[Math.floor(Math.random() * missing.length)];
+    }
+
+    active.push(regrownHead);
+    alert(`${head} head was removed! Regrowth roll… New head: ${regrownHead}`);
+    renderHeads();
+}
+
+// -----------------------------------------------------------
+// Initialize
+// -----------------------------------------------------------
+renderHeads();
+
+</script>
+
+</body>
+</html>
