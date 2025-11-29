@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Tiamat Head Tracker — Full Descriptions (Accordion)</title>
+<style>
+  :root{
+    --bg:#0f1113; --panel:#16181a; --muted:#9aa3ad; --accent:#ffb86b;
+    --card:#121315; --danger:#b33; --ok:#6cc070;
+  }
+  body{
+    margin:0; font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background:linear-gradient(180deg,#070708 0%, #0a0b0c 100%); color:#e6eef3;
+  }
+  /* defeat modal */
+  .modal-overlay{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.6); z-index:60; }
+  .modal{ background:var(--panel); padding:20px; border-radius:10px; width:320px; text-align:center; box-shadow:0 8px 30px rgba(0,0,0,0.6); }
+  .modal h2{ margin:0 0 8px; color:var(--accent); }
+  .modal p{ color:var(--muted); margin:0 0 12px; }
+  .modal .modal-btn{ padding:8px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.03); background:transparent; color:#fff; cursor:pointer; }
+  header{
+    padding:18px 20px; display:flex; gap:12px; align-items:center; border-bottom:1px solid rgba(255,255,255,0.03);
+    background:linear-gradient(90deg, rgba(255,184,107,0.03), transparent);
+  }
+  header h1{ margin:0; font-size:18px; color:var(--accent); letter-spacing:0.6px; }
+  header p{ margin:0; color:var(--muted); font-size:13px; }
+
+  .wrap{ display:flex; gap:20px; padding:20px; align-items:flex-start; flex-wrap:wrap; }
+  .left{ width:320px; max-height:78vh; overflow:auto; background:var(--panel); border-radius:10px; padding:14px; box-shadow: 0 6px 20px rgba(0,0,0,0.6); }
+  .right{ flex:1; max-height:78vh; overflow:auto; background:var(--card); border-radius:10px; padding:14px; box-shadow: 0 6px 20px rgba(0,0,0,0.55); }
+
+  .heads-list { display:flex; flex-direction:column; gap:8px; }
+  .head-btn {
+    display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border-radius:8px; cursor:pointer;
+    background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00)); border:1px solid rgba(255,255,255,0.03);
+  }
+  .head-btn .name{ font-weight:700; letter-spacing:0.3px; }
+  .head-buttons { display:flex; gap:8px; }
+  .small { font-size:12px; color:var(--muted); padding:6px 8px; background:transparent; border-radius:6px; border:1px solid rgba(255,255,255,0.03); cursor:pointer;}
+  .remove { color:var(--danger); border-color:rgba(179,51,51,0.15); }
+  .disabled { opacity:0.45; pointer-events:none; }
+
+  details.summaryless { background:transparent; border-radius:8px; padding:10px; border:1px solid rgba(255,255,255,0.02); }
+  details { border-radius:8px; background:linear-gradient(180deg, rgba(255,255,255,0.00), rgba(255,255,255,0.00)); }
+  summary{ list-style:none; outline:none; cursor:pointer; padding:10px 12px; display:flex; justify-content:space-between; align-items:center; gap:12px; border-radius:8px; }
+  summary h3{ margin:0; font-size:15px; color:var(--accent); }
+  summary p{ margin:0; color:var(--muted); font-size:13px; }
+  .panel { padding:12px; color:#dbe7ee; border-top:1px solid rgba(255,255,255,0.02); font-size:14px; line-height:1.5; white-space:pre-wrap; }
+
+  .trait-title { color:#ffd9a8; font-weight:700; margin-top:8px; margin-bottom:6px; }
+  .muted { color:var(--muted); font-size:13px; }
+
+  .log{ margin-top:12px; font-size:13px; color:var(--muted); background:rgba(255,255,255,0.01); padding:10px; border-radius:8px; max-height:150px; overflow:auto; }
+  footer { padding:12px 20px; color:var(--muted); font-size:13px; border-top:1px solid rgba(255,255,255,0.02); }
+
+  /* small screens */
+  @media (max-width:880px){
+    .wrap{ padding:12px; }
+    .left{ width:100%; order:2; max-height:unset; }
+    .right{ order:1 }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Tiamat — Head Tracker (Full)</h1>
+    <p>Accordion layout • Full 5e-style descriptions • Click a head to remove it (simulates severing). Regrowth auto-roll (d4).</p>
+  </div>
+</header>
+
+<div class="wrap">
+  <aside class="left" id="leftPanel">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div>
+        <div style="font-weight:700;color:#fff">Active Heads</div>
+        <div class="muted" style="font-size:13px;">Click a head to expand details on the right.</div>
+      </div>
+      <div style="text-align:right">
+        <button class="small" onclick="resetHeads()">Reset</button>
+      </div>
+    </div>
+
+    <div class="heads-list" id="headsList"></div>
+
+    <div style="margin-top:12px;">
+      <div style="font-weight:700;color:#fff;margin-bottom:6px;">Hit Points</div>
+      <div id="hpContainer" style="display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="flex:1;background:#222;border-radius:8px;overflow:hidden;height:14px;">
+            <div id="hpBar" style="height:100%;width:100%;background:#6cc070;"></div>
+          </div>
+          <div style="min-width:80px;text-align:right;"><span id="hpText">650 / 650</span></div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button class="small" onclick="changeHP(-10)">-10</button>
+          <button class="small" onclick="changeHP(-50)">-50</button>
+          <button class="small" onclick="changeHP(50)">+50</button>
+          <button class="small" onclick="changeHP(10)">+10</button>
+          <button class="small" onclick="changeHP(-1)">-1</button>
+          <button class="small" onclick="changeHP(1)">+1</button>
+        </div>
+        <div id="notify" style="color:var(--muted);font-size:13px;"></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="right" id="rightPanel">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-weight:800;font-size:18px;color:var(--accent)">Descriptions & Mechanics</div>
+        <div class="muted" style="margin-top:6px;">Full rules-style descriptions for every trait, aura and breath weapon — includes all constant Tiamat passives.</div>
+      </div>
+      <div class="muted" style="text-align:right">
+        <div>Proficiency bonus: +8</div>
+        <div>Legendary Actions: 3/turn</div>
+      </div>
+    </div>
+
+    <!-- Accordion (G - vertical accordion): each details element expands showing the full description -->
+    <section id="accordion" style="margin-top:14px;">
+      <!-- Constant traits block -->
+      <details open class="summaryless">
+        <summary>
+          <h3>Constant Traits — Tiamat (Full Passives)</h3>
+          <p>Always active</p>
+        </summary>
+        <div class="panel">
+<strong>Huge dragon, chaotic evil.</strong>
+
+<strong>Armor Class</strong> 22 (natural armor).  
+<strong>Hit Points</strong> 650 (28d20 + 336).  
+<strong>Speed</strong> 40 ft., fly 80 ft., burrow 40 ft., swim 40 ft., climb 40 ft.
+
+| STR 30 (+10) | DEX 14 (+2) | CON 28 (+9) | INT 22 (+6) | WIS 20 (+5) | CHA 26 (+8) |
+
+<strong>Saving Throws</strong> Str +17, Dex +9, Con +16, Int +13, Wis +12, Cha +15.  
+<strong>Skills</strong> Perception +19, Stealth +12, Insight +12, Intimidation +15.  
+<strong>Damage Resistances</strong> bludgeoning, piercing, and slashing from nonmagical attacks.  
+<strong>Damage Immunities</strong> fire, cold, lightning, acid, poison, psychic, thunder.  
+<strong>Condition Immunities</strong> charmed, frightened.  
+<strong>Senses</strong> blindsight 120 ft., darkvision 120 ft., tremorsense 120 ft., passive Perception 29.  
+<strong>Languages</strong> Common, Draconic, Deep Speech.  
+<strong>Challenge</strong> 25 (75,000 XP). <span class="muted">Proficiency +8 used for most DCs and saves below where relevant.</span>
+
+<hr>
+
+<strong>Legendary Resistance (3/Day).</strong> If Tiamat fails a saving throw, she can choose to succeed instead.
+
+<strong>Five-Headed Queen.</strong> Tiamat usually has five heads (Red, Blue, Green, Black and White). While a head is present, she has access to that head’s breath weapon and unique traits.
+
+<strong>Regrowth of the Queen’s Heads.</strong> When Tiamat takes 50 or more damage from a single attack (simulated here by clicking "Remove"), one head is severed. At the start of her next turn she rolls a d4. On a 1 the queen regrows a head; the new head is chosen randomly from missing heads according to the regrowth table:  
+• 1 → Brown (hybrid)  
+• 2 → Purple (hybrid)  
+• 3 → Gray (hybrid)  
+• 4 → A missing chromatic head (Red, Blue, Green, Black, or White) is restored at random.  
+If only one head is missing, it regrows automatically (no roll). Regrown heads restore their traits and breath weapon.
+
+<strong>Multiattack.</strong> Tiamat makes three attacks: one bite, one claw, and one tail attack.
+
+<strong>Damage Thresholds & Severing (Table rules).</strong> In this tracker a head is removed when you press "Remove" for that head or when you simulate severing. Use your own table rules for real encounters — this app focuses on head presence, regrowth and trait application.
+
+<hr>
+<div class="trait-title">Usage notes</div>
+This tracker shows which heads are active and lists the full rules descriptions for a head’s passive traits, auras and breath weapon. Remove a head to simulate severing; the regrowth system follows the d4 table described above. You can reset to the default five heads with the Reset button.
+        </div>
+      </details>
+
+      <!-- Chromatic heads & hybrids -->
+      <!-- We'll create one details element per head with full description -->
+      <!-- Red -->
+      <details class="summaryless" id="detail-Red">
+        <summary>
+          <h3>Red Head — Chromatic</h3>
+          <p>Scorched Terrain • Fire breath (cone)</p>
+        </summary>
+        <div class="panel">
+<strong>Scorched Terrain.</strong> The area within 10 feet of the red head is subject to intense heat. Whenever Tiamat ends her turn within 10 feet of a creature, that creature takes 5 (1d10) fire damage from the lingering heat. The ground in this area is considered difficult terrain for creatures that are not immune to fire and it ignites flammable objects that aren’t being worn or carried. A creature that willingly enters the area or starts its turn there must succeed on a DC 25 Dexterity saving throw or catch fire (deal 2d6 fire damage at the start of each of its turns until a creature uses an action to put the flames out). Creatures with immunity to fire or the ability to tolerate extreme heat (DM ruling) are unaffected.
+
+<strong>Breath Weapon — Fire Cone.</strong> (Recharge 5–6) The red head exhales fire in a 60-foot cone. Each creature in the area must make a DC 25 Dexterity saving throw, taking 91 (13d12) fire damage on a failed save, or half as much on a successful one. Ignited terrain effects from Scorched Terrain remain for 1 round after the breath resolves.
+
+        </div>
+      </details>
+
+      <!-- Blue -->
+      <details class="summaryless" id="detail-Blue">
+        <summary>
+          <h3>Blue Head — Chromatic</h3>
+          <p>Storm Caller • Lightning breath (line)</p>
+        </summary>
+        <div class="panel">
+<strong>Storm Caller.</strong> The blue head commands electrical fury and weather-borne effects. She is unaffected by difficult terrain caused by sand or shallow lightning fields, and any lightning-based effect that would impede movement (such as static-charged ground) does not slow her. Additionally, creatures that end their turn within 10 feet of the blue head must succeed on a DC 25 Strength saving throw or be pushed 10 feet away and knocked prone as residual electrical currents jerk them. The blue head can also call down lightning surges as part of some lair actions.
+
+<strong>Breath Weapon — Lightning Line.</strong> (Recharge 5–6) The blue head exhales lightning in a 120-foot line that is 10 feet wide. Each creature in that line must make a DC 25 Dexterity saving throw, taking 88 (16d10) lightning damage on a failed save, or half as much on a success. Electrified terrain (temporary) remains for 1 round; creatures who end their turn in it take 1d6 lightning damage.
+
+        </div>
+      </details>
+
+      <!-- Green -->
+      <details class="summaryless" id="detail-Green">
+        <summary>
+          <h3>Green Head — Chromatic</h3>
+          <p>Poisonous Aura • Poison breath (cone)</p>
+        </summary>
+        <div class="panel">
+<strong>Poisonous Aura.</strong> A sickly green mist perpetually surrounds the green head. At the start of each creature’s turn that is within 10 feet of the green head, that creature must succeed on a DC 25 Constitution saving throw or take 7 (2d6) poison damage and be poisoned until the start of its next turn. A creature that succeeds on the save takes half damage and is not poisoned. The aura persists while the head is present; it disperses immediately if the head is severed.
+
+<strong>Breath Weapon — Poison Cone.</strong> (Recharge 5–6) The green head exhales a 60-foot cone of noxious gas. Each creature in the cone must make a DC 25 Constitution saving throw, taking 77 (14d8) poison damage and becoming poisoned for 1 minute on a failed save (the poisoned creature may repeat the save at the end of each of its turns, ending the effect on a success). On a successful initial save, the creature takes half damage and is not poisoned.
+
+        </div>
+      </details>
+
+      <!-- Black -->
+      <details class="summaryless" id="detail-Black">
+        <summary>
+          <h3>Black Head — Chromatic</h3>
+          <p>Swamp Stalker • Acid breath (line)</p>
+        </summary>
+        <div class="panel">
+<strong>Swamp Stalker.</strong> While fully submerged in water, muck, or swamp, the black head is invisible to creatures relying on normal vision. Creatures that try to detect the black head while it remains submerged must succeed on a DC 25 Wisdom (Perception) check to notice ephemeral shapes or sounds. The black head moves through shallow water and marsh without leaving a meaningful trail and can use cover and concealment to ambush prey.
+
+<strong>Breath Weapon — Acid Line.</strong> (Recharge 5–6) The black head exhales acid in a 60-foot line that is 5 feet wide. Each creature in the line must make a DC 25 Dexterity saving throw, taking 67 (15d8) acid damage on a failed save, or half as much on a success. Nonmagical armor exposed to the line takes permanent corrosion at the DM’s discretion (long-term effects).
+
+        </div>
+      </details>
+
+      <!-- White -->
+      <details class="summaryless" id="detail-White">
+        <summary>
+          <h3>White Head — Chromatic</h3>
+          <p>Chilling Aura • Cold breath (cone)</p>
+        </summary>
+        <div class="panel">
+<strong>Chilling Aura.</strong> A frigid wind surrounds the white head. Creatures that start their turn within 10 feet of the white head must succeed on a DC 20 Constitution saving throw or be slowed until the start of their next turn. While slowed in this way, a creature’s speed is halved, it can’t take reactions, and it has disadvantage on Dexterity saving throws. A creature that succeeds on the save is unaffected. The aura also lowers ambient temperature, potentially creating difficult terrain from ice if a lair or environment provides moisture.
+
+<strong>Breath Weapon — Cold Cone.</strong> (Recharge 5–6) The white head exhales cold in a 60-foot cone. Each creature in the cone must make a DC 25 Constitution saving throw, taking 72 (16d8) cold damage on a failed save, or half as much on a success. Ice forms in the area after the breath; surfaces may become slippery at DM discretion.
+
+        </div>
+      </details>
+
+      <!-- Brown (Hybrid) -->
+      <details class="summaryless" id="detail-Brown">
+        <summary>
+          <h3>Brown Head — Hybrid</h3>
+          <p>Earth Swimmer • Burrowing Ambush • Sandstorm breath (cone)</p>
+        </summary>
+        <div class="panel">
+<strong>Earth Swimmer.</strong> The brown head (and Tiamat when the brown head is present) can burrow through loose earth, sand, and many types of stone as if it were water, without disturbing the surface above. Tiamat can travel beneath the surface silently and emerge to strike; it leaves no obvious tunnel in loose terrain unless a creature succeeds on a DC 25 Intelligence (Investigation) check to notice upwelling or displaced material.
+
+<strong>Burrowing Ambush.</strong> When emerging from the ground during the first round after surfacing, Tiamat has advantage on attack rolls against creatures that are surprised by the emergence. Additionally, Tiamat’s first melee attack after emerging deals an extra 3d10 bludgeoning damage.
+
+<strong>Breath Weapon — Sandstorm Cone.</strong> (Recharge 5–6) The brown head exhales a 60-foot cone of razor grit and choking sand. Each creature in the cone must make a DC 25 Dexterity saving throw, taking 63 (14d6) bludgeoning damage and becoming blinded until the end of their next turn on a failed save (a creature can spend an action to clear its eyes). Creatures wearing protective eye gear are immune to the blindness effect but still take half damage on a success.
+
+        </div>
+      </details>
+
+      <!-- Purple (Hybrid) -->
+      <details class="summaryless" id="detail-Purple">
+        <summary>
+          <h3>Purple Head — Hybrid</h3>
+          <p>Psychic Disruption Aura • Innate Teleportation • Psychic breath (cone)</p>
+        </summary>
+        <div class="panel">
+<strong>Psychic Disruption Aura.</strong> A shimmering psychic field extends 30 feet from the purple head. Creatures within this radius have disadvantage on Concentration checks and on Wisdom (Perception) checks that rely on sound or subtle mental cues. Additionally, creatures within the aura have disadvantage on saving throws against psychic effects originating from Tiamat while the purple head remains present.
+
+<strong>Innate Teleportation.</strong> The purple head grants Tiamat the ability to teleport short distances. As a bonus action, Tiamat may teleport up to 60 feet to an unoccupied space she can see. This teleportation does not provoke opportunity attacks and has no components.
+
+<strong>Breath Weapon — Psychic Cone.</strong> (Recharge 5–6) The purple head exhales a 60-foot cone of psychic force. Each creature in the cone must make a DC 25 Intelligence saving throw, taking 70 (20d6) psychic damage on a failed save, or half as much on a success. Creatures that fail the save have their minds rattled: they take disadvantage on the next attack roll they make before the end of their next turn.
+
+        </div>
+      </details>
+
+      <!-- Gray (Hybrid) -->
+      <details class="summaryless" id="detail-Gray">
+        <summary>
+          <h3>Gray Head — Hybrid</h3>
+          <p>Echoing Presence • Sonic Acceleration • Thunder breath (cone/line)</p>
+        </summary>
+        <div class="panel">
+<strong>Echoing Presence.</strong> A resonant hush surrounds the gray head. Creatures within 30 feet of the head have disadvantage on Dexterity (Stealth) checks and on attempts to mask sounds. Stealth checks that rely on muffling or silence are especially difficult; a creature attempting to hide must succeed on a DC 25 Wisdom (Perception) contest against Tiamat to remain unseen if the gray head is present.
+
+<strong>Sonic Acceleration.</strong> While the gray head is present, Tiamat’s flying speed increases by 20 feet and her movement manifests as concussive beats that can buffet opponents. When Tiamat flies past a creature within 5 feet, that creature must succeed on a DC 25 Strength saving throw or be pushed 10 feet and knocked prone.
+
+<strong>Breath Weapon — Thunder Cone/Line.</strong> (Recharge 5–6) The gray head can choose to exhale thunder in either a 60-foot cone or a 60-foot line. Each creature in the area must succeed on a DC 25 Constitution saving throw, taking 54 (12d8) thunder damage on a failed save, or half as much on a success. Loud resonance may deafen (temporary) those within the blast on a failed save at the DM’s discretion.
+
+        </div>
+      </details>
+
+    </section>
+
+    <hr style="margin:16px 0; border-color: rgba(255,255,255,0.03)">
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+      <button class="small" onclick="showActiveTraits()">Show Active Traits</button>
+      <button class="small" onclick="exportStatus()">Copy status (clipboard)</button>
+      <div style="flex:1" class="muted">Click a head's "Remove" button to sever it and trigger regrowth.</div>
+    </div>
+
+  </main>
+</div>
+
+<footer>
+  <div>File: <code>tiamat_heads_full.html</code> — Save to your repo and open with Live Server / Simple Browser. Built to be used in GitHub Codespaces.</div>
+</footer>
+
+<script>
+/* -------------------------
+   DATA: heads, descriptions
+   ------------------------- */
+const HEADS = {
+  "Red": { short: "Scorched Terrain • Fire cone", color:"#ff644d" },
+  "Blue": { short: "Storm Caller • Lightning line", color:"#4db8ff" },
+  "Green": { short: "Poisonous Aura • Poison cone", color:"#7bd14d" },
+  "Black": { short: "Swamp Stalker • Acid line", color:"#8a8a8a" },
+  "White": { short: "Chilling Aura • Cold cone", color:"#dfefff" },
+  "Brown": { short: "Earth Swimmer • Sandstorm cone", color:"#bf8b4a" },
+  "Purple": { short: "Psychic Disruption • Psychic cone", color:"#c07bff" },
+  "Gray": { short: "Echoing Presence • Thunder cone/line", color:"#cfcfcf" }
+};
+
+// initial five chromatic heads
+const INITIAL_ACTIVE = ["Red","Blue","Green","Black","White"];
+let active = INITIAL_ACTIVE.slice();
+
+// minimal notifier (replaces event log)
+function notify(text){
+  const n = document.getElementById('notify');
+  if(n){
+    n.textContent = text;
+    setTimeout(()=>{ if(n.textContent === text) n.textContent = ''; }, 4000);
+  } else {
+    console.log(text);
+  }
+}
+
+// Hit points state
+const MAX_HP = 650;
+let currHP = MAX_HP;
+
+function updateHPUI(){
+  const bar = document.getElementById('hpBar');
+  const txt = document.getElementById('hpText');
+  if(!bar || !txt) return;
+  const pct = Math.max(0, Math.min(100, Math.round((currHP / MAX_HP) * 100)));
+  bar.style.width = pct + '%';
+  // color shift: green -> orange -> red
+  if(pct > 50) bar.style.background = '#6cc070';
+  else if(pct > 20) bar.style.background = '#ffb86b';
+  else bar.style.background = '#ff6b6b';
+  txt.textContent = `${currHP} / ${MAX_HP}`;
+}
+
+function changeHP(delta){
+  if(currHP <= 0) return;
+  currHP += delta;
+  if(currHP > MAX_HP) currHP = MAX_HP;
+  if(currHP <= 0) currHP = 0;
+  updateHPUI();
+  if(currHP <= 0) defeatCheck();
+}
+
+// defeated state & controls helper
+let defeated = false;
+
+function setControlsDisabled(state){
+  // disable/enable remove buttons
+  document.querySelectorAll('.head-btn .remove').forEach(b=>{
+    try{ b.disabled = state; }catch(e){}
+    if(state) b.classList.add('disabled'); else b.classList.remove('disabled');
+  });
+  // disable/enable hp control buttons
+  document.querySelectorAll('#hpContainer .small').forEach(b=>{
+    try{ b.disabled = state; }catch(e){}
+    if(state) b.classList.add('disabled'); else b.classList.remove('disabled');
+  });
+}
+
+function showModal(title, message){
+  const overlay = document.getElementById('modalOverlay');
+  if(!overlay) return alert(message);
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalMessage').textContent = message;
+  overlay.style.display = 'flex';
+}
+
+function hideModal(){
+  const overlay = document.getElementById('modalOverlay');
+  if(overlay) overlay.style.display = 'none';
+}
+
+function resetAfterModal(){
+  hideModal();
+  resetHeads();
+  defeated = false;
+  setControlsDisabled(false);
+}
+
+function defeatCheck(){
+  if(defeated) return;
+  if(currHP <= 0 || active.length === 0){
+    defeated = true;
+    setControlsDisabled(true);
+    showModal('Tiamat defeated', 'All heads removed or HP reached 0.');
+  }
+}
+
+/* -------------------------
+   UI rendering
+   ------------------------- */
+function renderLeftList(){
+  const container = document.getElementById("headsList");
+  container.innerHTML = "";
+  Object.keys(HEADS).forEach(name=>{
+    const div = document.createElement("div");
+    div.className = "head-btn";
+    div.style.borderLeft = `4px solid ${HEADS[name].color}`;
+    // show active/removed visually
+    const isActive = active.includes(name);
+    div.innerHTML = `
+      <div>
+        <div class="name">${name} Head</div>
+        <div class="muted">${HEADS[name].short} ${isActive ? "" : "(removed)"}</div>
+      </div>
+      <div class="head-buttons">
+        <button class="small" onclick="focusDetail('${name}')">${isActive ? 'Open' : 'Open'}</button>
+        <button class="small remove ${isActive ? '' : 'disabled'}" onclick="removeHead('${name}')">${isActive ? 'Remove' : 'Removed'}</button>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function focusDetail(name){
+  // open the details panel for that head (scroll into view and toggle open)
+  const el = document.getElementById(`detail-${name}`);
+  if(!el) return;
+  // close others
+  document.querySelectorAll('#accordion details').forEach(d=>d.removeAttribute('open'));
+  el.setAttribute('open','');
+  el.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+/* -------------------------
+   Removal & Regrowth logic
+   ------------------------- */
+function removeHead(name){
+  if(!active.includes(name)){
+    notify(`${name} head is already removed.`);
+    renderLeftList();
+    return;
+  }
+  // remove
+  active = active.filter(h=>h!==name);
+  notify(`${name} head was severed.`);
+  // apply severing damage automatically (50 HP)
+  changeHP(-50);
+  // regrowth
+  setTimeout(()=>runRegrowth(name), 700); // brief delay so the event log reads nicely
+  renderLeftList();
+  updateActiveUI();
+  // check defeat if no heads left
+  if(active.length === 0) defeatCheck();
+}
+
+function runRegrowth(severedHead){
+  // determine missing list
+  const missing = Object.keys(HEADS).filter(h=>!active.includes(h));
+  // if only one missing -> auto regrow
+  if(missing.length === 1){
+    active.push(missing[0]);
+    notify(`Only one head missing. ${missing[0]} automatically regrows.`);
+    renderLeftList(); updateActiveUI(); return;
+  }
+  // FIRST ROLL: decide whether a head regrows (d4). Success on 1-2 (50%).
+  const regrowRoll = Math.ceil(Math.random()*4);
+  if(regrowRoll > 2){
+    notify(`Regrowth roll (d4 => ${regrowRoll}). No head regrows this turn.`);
+    renderLeftList(); updateActiveUI();
+    return;
+  }
+
+  // SECOND ROLL: choose which head regrows (d4 -> 1:Brown, 2:Purple, 3:Gray, 4:random chromatic)
+  const pickRoll = Math.ceil(Math.random()*4);
+  let regrown = null;
+  const hybrids = ["Brown","Purple","Gray"].filter(h=>missing.includes(h));
+  const chromaticMissing = ["Red","Blue","Green","Black","White"].filter(h=>missing.includes(h));
+  if(pickRoll === 1 && hybrids.includes("Brown")) regrown = "Brown";
+  else if(pickRoll === 2 && hybrids.includes("Purple")) regrown = "Purple";
+  else if(pickRoll === 3 && hybrids.includes("Gray")) regrown = "Gray";
+  else {
+    if(chromaticMissing.length>0) regrown = chromaticMissing[Math.floor(Math.random()*chromaticMissing.length)];
+  }
+
+  // final fallback: pick any missing
+  if(!regrown){
+    regrown = missing[Math.floor(Math.random()*missing.length)];
+  }
+
+  active.push(regrown);
+  notify(`Regrowth success (roll1 d4 => ${regrowRoll}). Pick roll (d4 => ${pickRoll}). ${regrown} head regrew.`);
+  renderLeftList(); updateActiveUI();
+}
+
+/* simulate sever random active head */
+/* "Simulate Damage" removed — use Remove buttons to sever heads. */
+
+/* reset to default */
+function resetHeads(){
+  active = INITIAL_ACTIVE.slice();
+  notify("Reset to default five chromatic heads.");
+  renderLeftList(); updateActiveUI();
+  // re-enable controls after reset
+  defeated = false;
+  setControlsDisabled(false);
+}
+
+/* show active traits (dialog) */
+function showActiveTraits(){
+  const activeList = active.slice();
+  let text = `Active heads: ${activeList.join(', ')}\n\nActive trait summary:\n`;
+  activeList.forEach(h=>{
+    // short summary text - full descriptions are on the right accordion
+    text += `\n- ${h}: ${HEADS[h].short}`;
+  });
+  showModal('Active Heads', text);
+}
+
+/* copy status to clipboard */
+function exportStatus(){
+  const payload = {
+    time: new Date().toISOString(),
+    active: active.slice()
+  };
+  navigator.clipboard?.writeText(JSON.stringify(payload, null, 2)).then(()=>{
+    notify("Status copied to clipboard.");
+  }).catch(()=>{ notify("Clipboard copy failed (browser may block)."); });
+}
+
+/* update UI elements that depend on active list */
+function updateActiveUI(){
+  Object.keys(HEADS).forEach(name=>{
+    const d = document.getElementById(`detail-${name}`);
+    if(!d) return;
+
+    const isActive = active.includes(name);
+
+    // toggle "removed" class (visual only)
+    if(isActive) d.removeAttribute('data-removed');
+    else d.setAttribute('data-removed','true');
+
+    // update summary label
+    const sum = d.querySelector('summary p');
+    if(sum){
+      sum.textContent = HEADS[name].short + (isActive ? "" : " (removed)");
+    }
+
+    // NEW BEHAVIOR:
+    // If head is active → keep its details open
+    // If head is removed → close the details
+    if(isActive){
+      d.setAttribute('open','');
+    } else {
+      d.removeAttribute('open');
+    }
+  });
+}
+
+/* initial render */
+renderLeftList();
+updateActiveUI();
+  notify("Tracker loaded. Default heads active.");
+
+/* expose some functions to global for buttons */
+window.removeHead = removeHead;
+window.focusDetail = focusDetail;
+window.resetHeads = resetHeads;
+window.showActiveTraits = showActiveTraits;
+window.exportStatus = exportStatus;
+
+// Modal HTML appended to body
+document.body.insertAdjacentHTML('beforeend', `
+  <div id="modalOverlay" class="modal-overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+      <h2 id="modalTitle">Tiamat defeated</h2>
+      <p id="modalMessage">All heads removed or HP reached 0.</p>
+      <div style="display:flex;justify-content:center;gap:8px;margin-top:12px;">
+        <button class="modal-btn" onclick="hideModal()">Close</button>
+        <button class="modal-btn" onclick="resetAfterModal()">Reset</button>
+      </div>
+    </div>
+  </div>
+`);
+
+</script>
