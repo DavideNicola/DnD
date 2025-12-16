@@ -1,209 +1,1140 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Generatore Turni 2025 — FERMO ogni 2 domeniche</title>
-<style>
-  body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:18px;background:#f4f6fb;color:#111}
-  .card{background:white;padding:16px;border-radius:10px;box-shadow:0 6px 20px rgba(15,23,42,0.06);max-width:1150px;margin:0 auto}
-  h1{margin:0 0 8px;font-size:20px}
-  label{display:block;margin-top:10px;font-weight:600}
-  input[type="text"], input[type="number"], select{width:100%;padding:6px;border-radius:6px;border:1px solid #d6d9e6}
-  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13px}
-  th,td{padding:6px;border:1px solid #e6e9ef;text-align:left}
-  thead th{background:#f0f4ff}
-  .fermo{background:#ffecec}
-  .download{background:#0b8; color:white}
-  .drag-handle{cursor:grab}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generatore Turni - Consorzio Pozzo Trebbie</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Calibri', Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f0f0f0;
+            color: #333;
+            padding: 20px;
+            line-height: 1.4;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #2c5282;
+        }
+
+        .header h1 {
+            color: #2c5282;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .controls {
+            background-color: #edf2f7;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+            border: 1px solid #cbd5e0;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            font-weight: bold;
+            color: #2d3748;
+            min-width: 150px;
+        }
+
+        select, button, input {
+            padding: 8px 15px;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        select {
+            background-color: white;
+            min-width: 200px;
+        }
+
+        button {
+            background-color: #2c5282;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            border: none;
+        }
+
+        button:hover {
+            background-color: #1a365d;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #2c5282;
+            font-weight: bold;
+        }
+
+        .turno-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border: 1px solid #000;
+            font-size: 13px;
+        }
+
+        .turno-table th {
+            background-color: #d9d9d9;
+            padding: 8px 5px;
+            text-align: center;
+            border: 1px solid #000;
+            font-weight: bold;
+        }
+
+        .turno-table td {
+            padding: 8px 5px;
+            border: 1px solid #000;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .turno-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .num-col { width: 40px; }
+        .nome-col { width: 220px; text-align: left; padding-left: 10px !important; }
+        .ore-col { width: 70px; }
+        .ora-col { width: 80px; }
+        .data-col { width: 160px; text-align: left; padding-left: 10px !important; }
+
+        .turno-header {
+            background-color: #4a90e2;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            padding: 12px;
+            border: 1px solid #000;
+            margin-top: 30px;
+            font-size: 18px;
+        }
+
+        .fermo-row {
+            background-color: #ffe680 !important;
+            font-weight: bold;
+        }
+
+        .note-row {
+            background-color: #fffacd !important;
+            font-style: italic;
+        }
+
+        .note-row td {
+            font-style: italic;
+            text-align: left;
+            padding-left: 10px !important;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #2c5282;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .error {
+            color: #e53e3e;
+            background-color: #fed7d7;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .info-panel {
+            background-color: #e6fffa;
+            border-left: 4px solid #38b2ac;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .stats {
+            background-color: #f7fafc;
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        /* Stili per la gestione consorziati */
+        .management-panel {
+            background-color: #fff5f5;
+            border: 1px solid #fed7d7;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .management-panel h3 {
+            color: #c53030;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #fed7d7;
+        }
+
+        .management-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 13px;
+        }
+
+        .management-table th {
+            background-color: #fed7d7;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #cbd5e0;
+            font-weight: bold;
+        }
+
+        .management-table td {
+            padding: 8px;
+            border: 1px solid #cbd5e0;
+            text-align: center;
+        }
+
+        .management-table input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #cbd5e0;
+            border-radius: 3px;
+        }
+
+        .management-table .small-input {
+            width: 60px;
+        }
+
+        .management-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-add {
+            background-color: #38a169;
+        }
+
+        .btn-remove {
+            background-color: #e53e3e;
+        }
+
+        .btn-save {
+            background-color: #3182ce;
+        }
+
+        .btn-cancel {
+            background-color: #718096;
+        }
+
+        .btn-manage {
+            background-color: #805ad5;
+        }
+
+        @media print {
+            .controls, button, .info-panel, .stats, .management-panel {
+                display: none;
+            }
+            
+            body {
+                background: white;
+                padding: 10px;
+            }
+            
+            .container {
+                box-shadow: none;
+                padding: 0;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="card">
-<h1>Generatore Turni 2025 — logica FERMO</h1>
+    <div class="container">
+        <div class="header">
+            <h1>CONSORZIO IRRIGUO "POZZO TREBBIE"</h1>
+            <h2>GENERATORE TURNI AUTOMATICO</h2>
+        </div>
 
-<p class="small">Gestisci consorziati con ordine drag&drop, modifica proprietario/affittuario/ore. Lo script genera calendario FERMO 2025.</p>
+        <div class="controls">
+            <div class="control-group">
+                <label for="yearSelect">Seleziona l'anno:</label>
+                <select id="yearSelect">
+                    <option value="2024">2024</option>
+                    <option value="2025" selected>2025</option>
+                    <option value="2026">2026</option>
+                    <option value="2027">2027</option>
+                </select>
+                <button id="generateBtn">GENERA TURNI</button>
+                <button id="printBtn" style="background-color: #38a169;">STAMPA</button>
+                <button id="manageBtn" class="btn-manage">GESTISCI CONSORZIATI</button>
+            </div>
+            
+            <div class="info-panel">
+                <p><strong>Regole operative CORRETTE:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 5px;">
+                    <li><strong>Inizio stagione:</strong> 1 Aprile ore <strong>00:00</strong> dell'anno selezionato</li>
+                    <li><strong>Fermi domenicali:</strong> solo UNA DOMENICA OGNI 15 GIORNI (alternanza)</li>
+                    <li><strong>Fermo 15 agosto:</strong> 00:00 del 15/08 → 02:30 del 16/08 (sempre fermo)</li>
+                    <li><strong>Fine stagione:</strong> 1 Ottobre (inizio fermo stagionale)</li>
+                    <li><strong>Turni divisi:</strong> solo se il fermo cade in mezzo alle ore di un consorziato</li>
+                </ul>
+            </div>
+        </div>
 
-<h2>Consorziati</h2>
-<table id="consorziatiTable">
-<thead><tr><th>#</th><th>Proprietario</th><th>Affittuario</th><th>Ore</th><th>Drag</th></tr></thead>
-<tbody></tbody>
-</table>
+        <!-- Pannello di gestione consorziati -->
+        <div class="management-panel" id="managementPanel">
+            <h3>GESTIONE CONSORZIATI</h3>
+            <p>Modifica l'elenco dei consorziati. I numeri devono essere univoci. Lascia vuoto "Fruitore" se non applicabile.</p>
+            
+            <table class="management-table" id="managementTable">
+                <thead>
+                    <tr>
+                        <th>N°</th>
+                        <th>COGNOME E NOME</th>
+                        <th>ORE</th>
+                        <th>MINUTI</th>
+                        <th>FRUITORE (opzionale)</th>
+                        <th>AZIONI</th>
+                    </tr>
+                </thead>
+                <tbody id="managementTableBody">
+                    <!-- Le righe verranno generate dinamicamente -->
+                </tbody>
+            </table>
+            
+            <div class="management-actions">
+                <button id="addConsorziatoBtn" class="btn-add">AGGIUNGI CONSORZIATO</button>
+                <button id="saveConsorziatiBtn" class="btn-save">SALVA MODIFICHE</button>
+                <button id="cancelManageBtn" class="btn-cancel">ANNULLA</button>
+            </div>
+            
+            <div id="managementError" class="error"></div>
+        </div>
 
-<button id="addConsorziato">Aggiungi consorziato</button>
+        <div class="error" id="errorMessage"></div>
+        
+        <div class="loading" id="loadingMessage">
+            <p>Calcolo turni in corso... Attendere prego.</p>
+        </div>
 
-<h2>Parametri FERMO</h2>
-<div style="display:flex;gap:12px;flex-wrap:wrap">
-<div>
-<label>Periodo FERMO</label>
-<div style="display:flex;gap:4px">
-<input type="date" id="period_start" value="2025-04-01"/>
-<input type="date" id="period_end" value="2025-09-30"/>
-</div>
-</div>
-<div>
-<label>Domeniche: parità</label>
-<select id="parity">
-<option value="odd">Occorrenze dispari</option>
-<option value="even">Occorrenze pari</option>
-</select>
-</div>
-<div>
-<label><input type="checkbox" id="include_aug15" checked/> Includi 15 agosto</label><br/>
-<label><input type="checkbox" id="include_oct1"/> Includi 1 ottobre</label>
-</div>
-</div>
+        <div id="statsContainer" class="stats"></div>
 
-<button id="generate">Genera calendario</button>
-<button id="download" class="download" style="display:none">Scarica CSV</button>
+        <div id="turniContainer">
+            <!-- Qui verranno inseriti i turni calcolati -->
+        </div>
 
-<div id="tablewrap"></div>
+        <div class="footer">
+            <p>CONSORZIO IRRIGUO "POZZO TREBBIE" - Generatore Turni Automatico</p>
+            <p>Sistema sviluppato secondo le specifiche operative - Documento generato il: <span id="currentDate"></span></p>
+        </div>
+    </div>
 
-<script>
-(() => {
-const consorziati = [
-  {id:1, proprietario:"Oggero F.lli", affittuario:"", ore:29.0},
-  {id:2, proprietario:"Panero Giovanni", affittuario:"Oggero F.lli", ore:13.83},
-  {id:3, proprietario:"Allasia Plant", affittuario:"", ore:10.0},
-  {id:4, proprietario:"Villosio F.lli", affittuario:"", ore:19.5},
-  {id:5, proprietario:"Massimino F.lli", affittuario:"", ore:13.5},
-  {id:6, proprietario:"Martini Vincenzo", affittuario:"", ore:19.0},
-  {id:7, proprietario:"Toselli Bartolomeo", affittuario:"", ore:20.0},
-  {id:8, proprietario:"Panero Giorgio", affittuario:"", ore:23.0},
-  {id:9, proprietario:"Panero Giuseppe", affittuario:"", ore:5.0},
-  {id:10, proprietario:"Raso Michelino", affittuario:"", ore:10.0},
-  {id:11, proprietario:"Rosso Sebastiano", affittuario:"", ore:12.0},
-  {id:12, proprietario:"Bergesio Renato", affittuario:"", ore:28.75},
-  {id:13, proprietario:"Bergesio Antonio", affittuario:"", ore:4.0},
-  {id:14, proprietario:"Milano Dario", affittuario:"", ore:1.0},
-  {id:15, proprietario:"Toselli Bartolomeo", affittuario:"", ore:12.67},
-  {id:16, proprietario:"Brizio Matteo", affittuario:"Tosco Bernardino", ore:10.0},
-  {id:17, proprietario:"Tosco Bernardino", affittuario:"", ore:36.75},
-  {id:18, proprietario:"Camisassi Piergiorgio", affittuario:"", ore:11.5}
-];
+    <script>
+        // Dati iniziali dei consorziati (ore di diritto)
+        let consorziati = [
+            { numero: 1, nome: "Oggero F.lli", ore: 29, minuti: 0, fruitore: null },
+            { numero: 2, nome: "Panero Giovanni", ore: 13, minuti: 50, fruitore: "Oggero F.lli" },
+            { numero: 3, nome: "Allasia Plant", ore: 10, minuti: 0, fruitore: null },
+            { numero: 4, nome: "Villosio F.lli", ore: 19, minuti: 30, fruitore: null },
+            { numero: 5, nome: "Massimino F.lli", ore: 13, minuti: 30, fruitore: null },
+            { numero: 6, nome: "Martini Vincenzo", ore: 19, minuti: 0, fruitore: null },
+            { numero: 7, nome: "Toselli Bartolomeo", ore: 20, minuti: 0, fruitore: null },
+            { numero: 8, nome: "Panero Giorgio", ore: 23, minuti: 0, fruitore: null },
+            { numero: 9, nome: "Panero Giuseppe", ore: 5, minuti: 0, fruitore: null },
+            { numero: 10, nome: "Raso Michelino", ore: 10, minuti: 0, fruitore: null },
+            { numero: 11, nome: "Rosso Sebastiano", ore: 12, minuti: 0, fruitore: null },
+            { numero: 12, nome: "Bergesio Renato", ore: 28, minuti: 45, fruitore: null },
+            { numero: 13, nome: "Bergesio Antonio", ore: 4, minuti: 0, fruitore: null },
+            { numero: 14, nome: "Milano Dario", ore: 1, minuti: 0, fruitore: null },
+            { numero: 15, nome: "Toselli Bartolomeo", ore: 12, minuti: 40, fruitore: null },
+            { numero: 16, nome: "Brizio Matteo", ore: 10, minuti: 0, fruitore: "Tosco Bernardino" },
+            { numero: 17, nome: "Tosco Bernardino", ore: 36, minuti: 45, fruitore: null },
+            { numero: 18, nome: "Camisassi Piergiorgio", ore: 11, minuti: 30, fruitore: null }
+        ];
 
-const tbody = document.querySelector("#consorziatiTable tbody");
+        // Variabile per tracciare i dati temporanei durante la modifica
+        let editingConsorziati = [];
 
-function renderConsorziati() {
-  tbody.innerHTML="";
-  consorziati.forEach((c,index)=>{
-    const tr = document.createElement("tr");
-    tr.draggable=true;
-    tr.innerHTML=`
-      <td>${index+1}</td>
-      <td><input type="text" value="${c.proprietario}" data-id="${c.id}" data-field="proprietario"/></td>
-      <td><input type="text" value="${c.affittuario}" data-id="${c.id}" data-field="affittuario"/></td>
-      <td><input type="number" value="${c.ore}" step="0.01" min="0" data-id="${c.id}" data-field="ore"/></td>
-      <td class="drag-handle">⇅</td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
+        // Funzioni di utilità
+        function formatDate(date) {
+            const giorni = ["domenica", "lunedì", "martedì", "mercoledì", "giovedì", "venerdì", "sabato"];
+            const mesi = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", 
+                         "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"];
+            
+            const giornoSettimana = giorni[date.getDay()];
+            const giorno = date.getDate();
+            const mese = mesi[date.getMonth()];
+            const anno = date.getFullYear();
+            
+            return `${giornoSettimana} ${giorno} ${mese} ${anno}`;
+        }
 
-// Drag & Drop reordering
-let dragSrcIndex = null;
-tbody.addEventListener('dragstart',e=>{
-  dragSrcIndex=[...tbody.children].indexOf(e.target);
-  e.dataTransfer.effectAllowed='move';
-});
-tbody.addEventListener('dragover',e=>{ e.preventDefault(); });
-tbody.addEventListener('drop',e=>{
-  e.preventDefault();
-  const dragDstIndex=[...tbody.children].indexOf(e.target.closest('tr'));
-  if(dragDstIndex===-1||dragSrcIndex===null) return;
-  const moved = consorziati.splice(dragSrcIndex,1)[0];
-  consorziati.splice(dragDstIndex,0,moved);
-  renderConsorziati();
-});
+        function formatTime(hours, minutes) {
+            return `${hours}:${minutes.toString().padStart(2, '0')}`;
+        }
 
-// Update consorziati from input changes
-tbody.addEventListener('input',e=>{
-  const id=parseInt(e.target.dataset.id);
-  const field=e.target.dataset.field;
-  const cons=consorziati.find(c=>c.id===id);
-  if(field==="ore") cons[field]=parseFloat(e.target.value);
-  else cons[field]=e.target.value;
-});
+        function addTimeToDate(date, hours, minutes) {
+            const millisecondsToAdd = (hours * 60 * 60 * 1000) + (minutes * 60 * 1000);
+            return new Date(date.getTime() + millisecondsToAdd);
+        }
 
-document.getElementById("addConsorziato").addEventListener("click",()=>{
-  const maxId = consorziati.length ? Math.max(...consorziati.map(c=>c.id)) : 0;
-  consorziati.push({id:maxId+1, proprietario:"Nuovo", affittuario:"", ore:0});
-  renderConsorziati();
-});
+        // FUNZIONE CORRETTA: determina se una domenica è di fermo
+        function isFermoDomenica(date, year) {
+            // Controlla se è domenica
+            if (date.getDay() !== 0) return false;
+            
+            // Data inizio stagione: 1 aprile ore 00:00
+            const inizioStagione = new Date(year, 3, 1, 0, 0, 0); // 1 Aprile
+            
+            // Se la domenica è prima del 1 aprile, non è di stagione
+            if (date < inizioStagione) return false;
+            
+            // Calcola il numero di settimane dall'inizio della stagione
+            // La prima settimana inizia il 1 aprile
+            const msPerGiorno = 1000 * 60 * 60 * 24;
+            const giorniDallInizio = Math.floor((date - inizioStagione) / msPerGiorno);
+            const numeroSettimana = Math.floor(giorniDallInizio / 7) + 1;
+            
+            // Prima domenica (7 aprile 2024 per esempio) = settimana 1 → FERMO
+            // Seconda domenica (14 aprile 2024) = settimana 2 → LAVORA
+            // Terza domenica (21 aprile 2024) = settimana 3 → FERMO
+            return numeroSettimana % 2 === 1; // Fermo se numero settimana è dispari
+        }
 
-renderConsorziati();
+        function debugDomenicheFermo(year) {
+            console.log(`\n=== DEBUG DOMENICHE FERMO ${year} ===`);
+            const inizioStagione = new Date(year, 3, 1, 0, 0, 0);
+            let data = new Date(inizioStagione);
+            
+            console.log(`Inizio stagione: ${formatDate(inizioStagione)}`);
+            
+            // Controlla le prossime 8 domeniche
+            let domenicheTrovate = 0;
+            for (let i = 0; i < 180; i++) { // 6 mesi
+                if (data.getDay() === 0) {
+                    domenicheTrovate++;
+                    const isFermo = isFermoDomenica(data, year);
+                    const giorniDallInizio = Math.floor((data - inizioStagione) / (1000 * 60 * 60 * 24));
+                    const numeroSettimana = Math.floor(giorniDallInizio / 7) + 1;
+                    console.log(`  ${formatDate(data)}: ${isFermo ? 'FERMO' : 'LAVORA'} (settimana ${numeroSettimana}, giorno ${giorniDallInizio + 1})`);
+                    
+                    if (domenicheTrovate >= 8) break;
+                }
+                data.setDate(data.getDate() + 1);
+            }
+        }
 
-// --- CALENDARIO ---
-function fmt(d){ return d.toISOString().slice(0,10); }
-function generateCalendar2025(){
-  const year=2025;
-  const start=new Date(Date.UTC(year,0,1));
-  const end=new Date(Date.UTC(year,11,31));
-  const days=[];
-  for(let d=new Date(start);d<=end;d.setUTCDate(d.getUTCDate()+1)) days.push(new Date(d));
-  return days;
-}
-function sundaysInRange(startDate,endDate){
-  const res=[];
-  for(let d=new Date(startDate);d<=endDate;d.setUTCDate(d.getUTCDate()+1))
-    if(d.getUTCDay()===0) res.push(new Date(d));
-  return res;
-}
+        function isFermoWeekend(date, year) {
+            const day = date.getDay();
+            const hour = date.getHours();
+            const minute = date.getMinutes();
+            
+            // SABATO: NON è mai giorno di fermo (rimosso)
+            
+            // Domenica: solo se è una domenica di fermo
+            if (day === 0) {
+                return isFermoDomenica(date, year);
+            }
+            
+            // Lunedì fino alle 02:30 (solo se la domenica precedente era di fermo)
+            if (day === 1 && (hour < 2 || (hour === 2 && minute < 30))) {
+                // Controlla se la domenica precedente era di fermo
+                const domenicaPrecedente = new Date(date);
+                domenicaPrecedente.setDate(domenicaPrecedente.getDate() - 1);
+                return isFermoDomenica(domenicaPrecedente, year);
+            }
+            
+            return false;
+        }
 
-document.getElementById('generate').addEventListener('click',()=>{
-  const periodStart=new Date(document.getElementById('period_start').value+'T00:00:00Z');
-  const periodEnd=new Date(document.getElementById('period_end').value+'T23:59:59Z');
-  const parity=document.getElementById('parity').value;
-  const includeAug15=document.getElementById('include_aug15').checked;
-  const includeOct1=document.getElementById('include_oct1').checked;
+        function isFermo15Agosto(date) {
+            const day = date.getDate();
+            const month = date.getMonth();
+            const hour = date.getHours();
+            const minute = date.getMinutes();
+            
+            if (month === 7) {
+                if (day === 15 && hour >= 0) return true;
+                if (day === 16 && (hour < 2 || (hour === 2 && minute < 30))) return true;
+            }
+            return false;
+        }
 
-  const days=generateCalendar2025();
-  const sundays=sundaysInRange(periodStart,periodEnd);
-  const sundayIndex={};
-  sundays.forEach((d,i)=>sundayIndex[fmt(d)]=i+1);
+        function isFermo(date, year) {
+            return isFermoWeekend(date, year) || isFermo15Agosto(date);
+        }
 
-  const fermoSet=new Set();
-  sundays.forEach((d,i)=>{
-    const occ=i+1, isOdd=(occ%2)===1;
-    const wantOdd=(parity==='odd');
-    if((isOdd&&wantOdd)||(!isOdd&&!wantOdd)) fermoSet.add(fmt(d));
-  });
-  if(includeAug15){ const aug=new Date(Date.UTC(2025,7,15)); if(aug>=periodStart&&aug<=periodEnd) fermoSet.add(fmt(aug)); }
-  if(includeOct1){ const oct1=new Date(Date.UTC(2025,9,1)); if(oct1>=periodStart&&oct1<=periodEnd) fermoSet.add(fmt(oct1)); }
+        function getNextAvailableDate(date, year) {
+            let currentDate = new Date(date);
+            
+            // Avanza fino a quando non siamo più in periodo di fermo
+            while (isFermo(currentDate, year)) {
+                const day = currentDate.getDay();
+                const hour = currentDate.getHours();
+                const minute = currentDate.getMinutes();
+                
+                // Gestione specifica per diversi tipi di fermo
+                
+                // Se siamo nel fermo del 15 agosto
+                if (isFermo15Agosto(currentDate)) {
+                    if (currentDate.getMonth() === 7 && currentDate.getDate() === 15) {
+                        // 15 agosto: vai al 16 agosto alle 2:30
+                        currentDate.setDate(16);
+                        currentDate.setHours(2, 30, 0, 0);
+                        continue;
+                    }
+                    
+                    if (currentDate.getMonth() === 7 && currentDate.getDate() === 16 && 
+                        (hour < 2 || (hour === 2 && minute < 30))) {
+                        // 16 agosto prima delle 2:30: vai alle 2:30
+                        currentDate.setHours(2, 30, 0, 0);
+                        continue;
+                    }
+                }
+                
+                // Se siamo di domenica di fermo
+                if (day === 0 && isFermoDomenica(currentDate, year)) {
+                    // Vai al lunedì alle 2:30
+                    currentDate.setDate(currentDate.getDate() + 1);
+                    currentDate.setHours(2, 30, 0, 0);
+                    continue;
+                }
+                
+                // Se siamo di lunedì mattina prima delle 2:30 (dopo domenica di fermo)
+                if (day === 1 && (hour < 2 || (hour === 2 && minute < 30))) {
+                    // Controlla se la domenica precedente era di fermo
+                    const domenicaPrecedente = new Date(currentDate);
+                    domenicaPrecedente.setDate(domenicaPrecedente.getDate() - 1);
+                    
+                    if (isFermoDomenica(domenicaPrecedente, year)) {
+                        // Vai alle 2:30
+                        currentDate.setHours(2, 30, 0, 0);
+                        continue;
+                    }
+                }
+                
+                // Caso generale: avanza di un'ora
+                currentDate = new Date(currentDate.getTime() + (60 * 60 * 1000));
+            }
+            
+            return currentDate;
+        }
 
-  const out=[];
-  days.forEach(d=>{
-    const dateStr=fmt(d);
-    const wk=['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'][d.getUTCDay()];
-    const day=d.getUTCDate(), month=d.getUTCMonth()+1;
-    const isFermo=fermoSet.has(dateStr);
-    const who=isFermo? consorziati.map(c=>`${c.proprietario}${c.affittuario?'/'+c.affittuario:''}(${c.ore}h)`).join('; '):'';
-    out.push({date:dateStr,weekday:wk,day,month,isFermo: isFermo?'FERMO':'', whoFermo:who});
-  });
+        function calculateConsorziatoTurn(currentDate, cons, turnoNumero, consIndex, year) {
+            const inizioTurno = new Date(currentDate);
+            let oreRimanenti = cons.ore + (cons.minuti / 60);
+            
+            console.log(`  ${cons.nome}: ${formatTime(cons.ore, cons.minuti)} ore totali`);
+            console.log(`    Inizio: ${formatDate(inizioTurno)} ${formatTime(inizioTurno.getHours(), inizioTurno.getMinutes())}`);
+            
+            const result = {
+                consorziati: [],
+                nextDate: new Date(currentDate),
+                fermoInMezzo: false,
+                fermoData: null,
+                fermoFine: null
+            };
+            
+            // Gestione del turno con potenziale divisione per fermo
+            let dataCorrente = new Date(inizioTurno);
+            let parte = 1;
+            
+            while (oreRimanenti > 0) {
+                // Trova la prossima data di fermo
+                let dataFermo = null;
+                let dataTest = new Date(dataCorrente);
+                let tipoFermo = null;
+                
+                // Controlla se c'è un fermo nelle prossime oreRimanenti
+                let oreDaControllare = Math.ceil(oreRimanenti);
+                for (let h = 0; h < oreDaControllare * 2; h++) { // Controlla ogni 30 minuti
+                    if (isFermo(dataTest, year)) {
+                        dataFermo = new Date(dataTest);
+                        
+                        // Determina il tipo di fermo
+                        if (isFermo15Agosto(dataTest)) {
+                            tipoFermo = '15agosto';
+                        } else if (dataTest.getDay() === 0 && isFermoDomenica(dataTest, year)) {
+                            tipoFermo = 'domenica';
+                        } else if (dataTest.getDay() === 1) {
+                            tipoFermo = 'lunedi_mattina';
+                        }
+                        break;
+                    }
+                    dataTest = new Date(dataTest.getTime() + (30 * 60 * 1000));
+                }
+                
+                if (dataFermo && dataFermo.getTime() > dataCorrente.getTime()) {
+                    // Calcola l'ora di inizio ESATTA del fermo
+                    let dataInizioFermo = new Date(dataFermo);
+                    let dataFineFermo = null;
+                    
+                    // Per una domenica di fermo, inizia alle 00:00 della domenica
+                    if (tipoFermo === 'domenica') {
+                        dataInizioFermo.setHours(0, 0, 0, 0);
+                        dataFineFermo = new Date(dataInizioFermo);
+                        dataFineFermo.setDate(dataFineFermo.getDate() + 1);
+                        dataFineFermo.setHours(2, 30, 0, 0);
+                    }
+                    // Per il 15 agosto, inizia alle 00:00 del 15
+                    else if (tipoFermo === '15agosto') {
+                        dataInizioFermo.setHours(0, 0, 0, 0);
+                        dataFineFermo = new Date(dataInizioFermo);
+                        dataFineFermo.setDate(dataFineFermo.getDate() + 1);
+                        dataFineFermo.setHours(2, 30, 0, 0);
+                    }
+                    // Per lunedì mattina dopo domenica di fermo, inizia alle 00:00 del lunedì
+                    else if (tipoFermo === 'lunedi_mattina') {
+                        dataInizioFermo.setHours(0, 0, 0, 0);
+                        dataFineFermo = new Date(dataInizioFermo);
+                        dataFineFermo.setHours(2, 30, 0, 0);
+                    }
+                    
+                    // Calcola quanto tempo PRIMA del fermo
+                    const msPrimaFermo = dataInizioFermo.getTime() - dataCorrente.getTime();
+                    const orePrimaFermo = msPrimaFermo / (1000 * 60 * 60);
+                    
+                    // Se ci sono ore disponibili prima del fermo
+                    if (orePrimaFermo > 0) {
+                        const oreDaUsare = Math.min(orePrimaFermo, oreRimanenti);
+                        const oreIntere = Math.floor(oreDaUsare);
+                        const minuti = Math.round((oreDaUsare - oreIntere) * 60);
+                        
+                        const fineParte = addTimeToDate(dataCorrente, oreIntere, minuti);
+                        
+                        console.log(`    Parte ${parte}: ${formatTime(oreIntere, minuti)} (prima del fermo)`);
+                        
+                        result.consorziati.push({
+                            numero: cons.numero,
+                            nome: cons.nome,
+                            fruitore: cons.fruitore,
+                            ore: oreIntere,
+                            minuti: minuti,
+                            inizio: new Date(dataCorrente),
+                            fine: new Date(fineParte),
+                            parte: parte,
+                            diviso: true
+                        });
+                        
+                        oreRimanenti -= oreDaUsare;
+                        
+                        // Salva le informazioni del fermo per inserire la riga FERMO
+                        if (!result.fermoInMezzo) {
+                            result.fermoInMezzo = true;
+                            result.fermoData = dataInizioFermo;
+                            result.fermoFine = dataFineFermo;
+                        }
+                        
+                        // Vai alla fine del periodo di fermo
+                        dataCorrente = getNextAvailableDate(fineParte, year);
+                        console.log(`    Dopo fermo: ${formatDate(dataCorrente)} ${formatTime(dataCorrente.getHours(), dataCorrente.getMinutes())}`);
+                        
+                        parte++;
+                    } else {
+                        // Non ci sono ore disponibili prima del fermo, salta il fermo
+                        dataCorrente = getNextAvailableDate(dataCorrente, year);
+                    }
+                } else {
+                    // Nessun fermo, usa tutte le ore rimanenti
+                    const oreIntere = Math.floor(oreRimanenti);
+                    const minuti = Math.round((oreRimanenti - oreIntere) * 60);
+                    
+                    const fineParte = addTimeToDate(dataCorrente, oreIntere, minuti);
+                    
+                    console.log(`    Parte ${parte}: ${formatTime(oreIntere, minuti)} (senza fermo)`);
+                    
+                    result.consorziati.push({
+                        numero: cons.numero,
+                        nome: cons.nome,
+                        fruitore: cons.fruitore,
+                        ore: oreIntere,
+                        minuti: minuti,
+                        inizio: new Date(dataCorrente),
+                        fine: new Date(fineParte),
+                        parte: parte,
+                        diviso: false
+                    });
+                    
+                    dataCorrente = new Date(fineParte);
+                    oreRimanenti = 0;
+                }
+            }
+            
+            result.nextDate = new Date(dataCorrente);
+            console.log(`    Fine: ${formatDate(result.nextDate)} ${formatTime(result.nextDate.getHours(), result.nextDate.getMinutes())}`);
+            
+            return result;
+        }
 
-  let html='<table><thead><tr><th>Data</th><th>Giorno</th><th>GG</th><th>MM</th><th>FERMO</th><th>Consorziati FERMO</th></tr></thead><tbody>';
-  out.forEach(r=>{
-    html+=`<tr ${r.isFermo?'class="fermo"':''}><td>${r.date}</td><td>${r.weekday}</td><td>${r.day}</td><td>${r.month}</td><td>${r.isFermo}</td><td>${r.whoFermo}</td></tr>`;
-  });
-  html+='</tbody></table>';
-  document.getElementById('tablewrap').innerHTML=html;
+        function calculateTurni(year) {
+            const turni = [];
+            
+            let currentDate = new Date(year, 3, 1, 0, 0, 0);
+            let turnoNumero = 1;
+            let fineStagione = new Date(year, 9, 1, 0, 0, 0);
+            
+            console.log(`=== INIZIO CALCOLO PER ${year} ===`);
+            console.log(`Data inizio stagione: ${formatDate(currentDate)} ${formatTime(currentDate.getHours(), currentDate.getMinutes())}`);
+            
+            // DEBUG: Mostra le domeniche di fermo
+            debugDomenicheFermo(year);
+            
+            while (currentDate.getTime() < fineStagione.getTime()) {
+                const turno = {
+                    numero: turnoNumero,
+                    consorziati: [],
+                    meseInizio: currentDate.getMonth(),
+                    dataInizio: new Date(currentDate),
+                    indiceInserimento: 0
+                };
+                
+                console.log(`\n=== TURNO ${turnoNumero} - Inizio: ${formatDate(currentDate)} ${formatTime(currentDate.getHours(), currentDate.getMinutes())} ===`);
+                
+                for (let i = 0; i < consorziati.length; i++) {
+                    const cons = consorziati[i];
+                    
+                    // Controlla se siamo in un periodo di fermo (tranne per il primo consorziato del primo turno)
+                    if (!(turnoNumero === 1 && i === 0) && isFermo(currentDate, year)) {
+                        console.log(`  Fermo rilevato per ${cons.nome}, cerco prossima data disponibile...`);
+                        currentDate = getNextAvailableDate(currentDate, year);
+                    }
+                    
+                    const result = calculateConsorziatoTurn(currentDate, cons, turnoNumero, i, year);
+                    
+                    // Aggiungi i turni del consorziato nell'ordine corretto
+                    if (result.fermoInMezzo) {
+                        // Aggiungi prima parte con indice
+                        const primaParte = {...result.consorziati[0], indiceInserimento: turno.indiceInserimento++};
+                        turno.consorziati.push(primaParte);
+                        
+                        // Aggiungi riga FERMO con indice
+                        const rigaFermo = {
+                            numero: cons.numero,
+                            nome: "FERMO",
+                            fruitore: null,
+                            ore: 0,
+                            minuti: 0,
+                            inizio: result.fermoData,
+                            fine: result.fermoFine,
+                            parte: 0,
+                            diviso: false,
+                            isFermoRow: true,
+                            indiceInserimento: turno.indiceInserimento++
+                        };
+                        turno.consorziati.push(rigaFermo);
+                        
+                        // Aggiungi seconda parte con indice se presente
+                        if (result.consorziati.length > 1) {
+                            const secondaParte = {...result.consorziati[1], indiceInserimento: turno.indiceInserimento++};
+                            turno.consorziati.push(secondaParte);
+                        }
+                    } else {
+                        // Aggiungi tutti i turni normalmente (senza fermo in mezzo)
+                        result.consorziati.forEach(consTurno => {
+                            turno.consorziati.push({...consTurno, indiceInserimento: turno.indiceInserimento++});
+                        });
+                    }
+                    
+                    currentDate = result.nextDate;
+                    
+                    if (currentDate.getTime() >= fineStagione.getTime()) {
+                        console.log("  RAGGIUNTA FINE STAGIONE");
+                        break;
+                    }
+                }
+                
+                turno.meseFine = currentDate.getMonth();
+                turno.dataFine = new Date(currentDate);
+                turni.push(turno);
+                
+                console.log(`Fine turno ${turnoNumero}: ${formatDate(turno.dataFine)} ${formatTime(turno.dataFine.getHours(), turno.dataFine.getMinutes())}`);
+                
+                turnoNumero++;
+                
+                if (currentDate.getTime() >= fineStagione.getTime()) {
+                    console.log("FINE CALCOLO TURNI - RAGGIUNTO 1 OTTOBRE");
+                    break;
+                }
+                
+                // NON aggiungere minuti extra, inizia esattamente alla fine del turno precedente
+                // currentDate = new Date(currentDate.getTime() + (60 * 1000));
+            }
+            
+            return {
+                turni: turni,
+                dataInizioStagione: new Date(year, 3, 1, 0, 0, 0),
+                dataFineStagione: fineStagione
+            };
+        }
 
-  // download CSV
-  const dl=document.getElementById('download'); dl.style.display='inline-block';
-  dl.onclick=()=>{
-    const cols=['date','weekday','day','month','fermo','whoFermo'];
-    const lines=[cols.join(',')];
-    out.forEach(r=>{
-      const quote=s=>`"${s}"`;
-      lines.push([r.date,r.weekday,r.day,r.month,r.isFermo,r.whoFermo].map(quote).join(','));
-    });
-    const csv=lines.join('\n');
-    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a'); a.href=url; a.download='calendario_2025_fermo.csv'; a.click(); URL.revokeObjectURL(url);
-  };
-});
-})();
-</script>
+        function mostraStatistiche(result, year) {
+            const container = document.getElementById('statsContainer');
+            const giorniStagione = Math.round((result.dataFineStagione.getTime() - result.dataInizioStagione.getTime()) / (1000 * 60 * 60 * 24));
+            
+            container.innerHTML = `
+                <h3>Statistiche Stagione ${year}</h3>
+                <p><strong>Periodo stagionale:</strong> 1 Aprile ${year} - 1 Ottobre ${year} (${giorniStagione} giorni)</p>
+                <p><strong>Totale turni generati:</strong> ${result.turni.length}</p>
+                <p><strong>Consorziati per turno:</strong> ${consorziati.length}</p>
+                <p><strong>Primo turno iniziato:</strong> 1 Aprile ${year} ore 00:00</p>
+                <p><strong>Ultimo turno completato:</strong> ${formatDate(result.turni[result.turni.length - 1].dataFine)}</p>
+                <p><strong>Nota:</strong> Fermo domenicale solo una domenica ogni 15 giorni (alternanza)</p>
+            `;
+        }
+
+        function generaHTMLTurni(result, year) {
+            const container = document.getElementById('turniContainer');
+            container.innerHTML = '';
+            
+            const mesi = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", 
+                         "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
+            const { turni } = result;
+            
+            turni.forEach(turno => {
+                const meseInizio = mesi[turno.meseInizio];
+                const meseFine = mesi[turno.meseFine];
+                const titoloTurno = meseInizio === meseFine ? meseInizio : `${meseInizio}/${meseFine}`;
+                
+                const turnoDiv = document.createElement('div');
+                
+                const consorziatiHTML = [];
+                
+                // Ordina i consorziati per numero e indice di inserimento
+                // Questo mantiene l'ordine corretto: parte 1, FERMO, parte 2 per ogni consorziato
+                turno.consorziati.sort((a, b) => {
+                    if (a.numero !== b.numero) return a.numero - b.numero;
+                    return a.indiceInserimento - b.indiceInserimento;
+                });
+                
+                for (let i = 0; i < turno.consorziati.length; i++) {
+                    const cons = turno.consorziati[i];
+                    
+                    if (!cons.inizio || !cons.fine) {
+                        console.error(`ERRORE: Consorziato ${cons.nome} ha date non valide`, cons);
+                        continue;
+                    }
+                    
+                    const nomeCompleto = cons.fruitore 
+                        ? `${cons.nome} (ore usate da ${cons.fruitore})`
+                        : cons.nome;
+                    
+                    const rowClass = cons.fruitore ? 'note-row' : (cons.isFermoRow ? 'fermo-row' : '');
+                    
+                    consorziatiHTML.push(`
+                        <tr class="${rowClass}">
+                            <td class="num-col">${cons.isFermoRow ? '' : cons.numero}</td>
+                            <td class="nome-col">${nomeCompleto}</td>
+                            <td class="ore-col">${cons.isFermoRow ? '' : formatTime(cons.ore, cons.minuti)}</td>
+                            <td class="ora-col">${formatTime(cons.inizio.getHours(), cons.inizio.getMinutes())}</td>
+                            <td class="data-col">${formatDate(cons.inizio)}</td>
+                            <td class="ora-col">${formatTime(cons.fine.getHours(), cons.fine.getMinutes())}</td>
+                            <td class="data-col">${formatDate(cons.fine)}</td>
+                        </tr>
+                    `);
+                }
+                
+                turnoDiv.innerHTML = `
+                    <div class="turno-header">TURNO ${turno.numero} - ${titoloTurno}</div>
+                    <table class="turno-table">
+                        <thead>
+                            <tr>
+                                <th colspan="2">PROPRIETARIO</th>
+                                <th>ORE DIRITTO</th>
+                                <th colspan="2">INIZIO TURNO</th>
+                                <th colspan="2">FINE TURNO</th>
+                            </tr>
+                            <tr>
+                                <th class="num-col">N°</th>
+                                <th class="nome-col">COGNOME E NOME</th>
+                                <th class="ore-col">ORE</th>
+                                <th class="ora-col">DALLE ORE</th>
+                                <th class="data-col">DEL GIORNO</th>
+                                <th class="ora-col">ALLE ORE</th>
+                                <th class="data-col">DEL GIORNO</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${consorziatiHTML.join('')}
+                        </tbody>
+                    </table>
+                `;
+                
+                container.appendChild(turnoDiv);
+            });
+            
+            const noteDiv = document.createElement('div');
+            noteDiv.innerHTML = `
+                <div style="margin-top: 30px; font-size: 12px; border: 1px solid #000; padding: 10px; background-color: #f8f9fa;">
+                    <p><strong>Note operative per l'anno ${year}:</strong></p>
+                    <p>1. <strong>Inizio stagione:</strong> 1 Aprile ${year} ore <strong>00:00</strong></p>
+                    <p>2. <strong>Fermi domenicali:</strong> solo UNA DOMENICA OGNI 15 GIORNI (alternanza: 1ª FERMO - 2ª LAVORA - 3ª FERMO - ecc.)</p>
+                    <p>3. <strong>Sabati:</strong> NON sono giorni di fermo</p>
+                    <p>4. <strong>Lunedì:</strong> fermi fino alle 02:30 solo se la domenica precedente era di fermo</p>
+                    <p>5. <strong>Fermo 15 agosto:</strong> dalle 00:00 del 15/08/${year} alle 2:30 del 16/08/${year} (sempre)</p>
+                    <p>6. <strong>Fine stagione:</strong> 1 Ottobre ${year} ore 00:00 (inizio fermo stagionale)</p>
+                    <p>7. <strong>Totale turni stagione:</strong> ${turni.length}</p>
+                    <p>8. <strong>Turni divisi:</strong> i turni vengono divisi solo se un fermo cade durante le ore di un consorziato, con riga "FERMO" inserita tra le due parti</p>
+                    <p>9. <strong>Orario fermo:</strong> i fermi iniziano sempre alle 00:00 del giorno indicato</p>
+                </div>
+            `;
+            container.appendChild(noteDiv);
+        }
+
+        // FUNZIONI PER LA GESTIONE DEI CONSORZIATI
+        function mostraGestioneConsorziati() {
+            const panel = document.getElementById('managementPanel');
+            const tableBody = document.getElementById('managementTableBody');
+            
+            // Copia i consorziati attuali per la modifica
+            editingConsorziati = JSON.parse(JSON.stringify(consorziati));
+            
+            // Popola la tabella
+            tableBody.innerHTML = '';
+            editingConsorziati.forEach((cons, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><input type="number" class="small-input" value="${cons.numero}" min="1" data-index="${index}" data-field="numero"></td>
+                    <td><input type="text" value="${cons.nome}" data-index="${index}" data-field="nome"></td>
+                    <td><input type="number" class="small-input" value="${cons.ore}" min="0" max="99" data-index="${index}" data-field="ore"></td>
+                    <td><input type="number" class="small-input" value="${cons.minuti}" min="0" max="59" data-index="${index}" data-field="minuti"></td>
+                    <td><input type="text" value="${cons.fruitore || ''}" data-index="${index}" data-field="fruitore" placeholder="Lasciare vuoto se non applicabile"></td>
+                    <td><button type="button" class="btn-remove" onclick="rimuoviConsorziato(${index})">RIMUOVI</button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Mostra il pannello
+            panel.style.display = 'block';
+            document.getElementById('managementError').style.display = 'none';
+            
+            // Nascondi la sezione dei turni per maggiore chiarezza
+            document.getElementById('turniContainer').style.display = 'none';
+            document.getElementById('statsContainer').style.display = 'none';
+        }
+
+        function nascondiGestioneConsorziati() {
+            document.getElementById('managementPanel').style.display = 'none';
+            document.getElementById('turniContainer').style.display = 'block';
+            document.getElementById('statsContainer').style.display = 'block';
+            document.getElementById('managementError').style.display = 'none';
+        }
+
+        function aggiungiConsorziato() {
+            // Trova il numero più alto attuale
+            const maxNumero = editingConsorziati.length > 0 
+                ? Math.max(...editingConsorziati.map(c => c.numero))
+                : 0;
+            
+            // Aggiungi un nuovo consorziato con valori di default
+            const nuovoConsorziato = {
+                numero: maxNumero + 1,
+                nome: "Nuovo Consorziato",
+                ore: 0,
+                minuti: 0,
+                fruitore: null
+            };
+            
+            editingConsorziati.push(nuovoConsorziato);
+            
+            // Aggiorna la tabella
+            const tableBody = document.getElementById('managementTableBody');
+            const index = editingConsorziati.length - 1;
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="number" class="small-input" value="${nuovoConsorziato.numero}" min="1" data-index="${index}" data-field="numero"></td>
+                <td><input type="text" value="${nuovoConsorziato.nome}" data-index="${index}" data-field="nome"></td>
+                <td><input type="number" class="small-input" value="${nuovoConsorziato.ore}" min="0" max="99" data-index="${index}" data-field="ore"></td>
+                <td><input type="number" class="small-input" value="${nuovoConsorziato.minuti}" min="0" max="59" data-index="${index}" data-field="minuti"></td>
+                <td><input type="text" value="${nuovoConsorziato.fruitore || ''}" data-index="${index}" data-field="fruitore" placeholder="Lasciare vuoto se non applicabile"></td>
+                <td><button type="button" class="btn-remove" onclick="rimuoviConsorziato(${index})">RIMUOVI</button></td>
+            `;
+            tableBody.appendChild(row);
+        }
+
+        function rimuoviConsorziato(index) {
+            // Rimuovi il consorziato dall'array
+            editingConsorziati.splice(index, 1);
+            
+            // Ricostruisci la tabella con gli indici aggiornati
+            const tableBody = document.getElementById('managementTableBody');
+            tableBody.innerHTML = '';
+            
+            editingConsorziati.forEach((cons, newIndex) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><input type="number" class="small-input" value="${cons.numero}" min="1" data-index="${newIndex}" data-field="numero"></td>
+                    <td><input type="text" value="${cons.nome}" data-index="${newIndex}" data-field="nome"></td>
+                    <td><input type="number" class="small-input" value="${cons.ore}" min="0" max="99" data-index="${newIndex}" data-field="ore"></td>
+                    <td><input type="number" class="small-input" value="${cons.minuti}" min="0" max="59" data-index="${newIndex}" data-field="minuti"></td>
+                    <td><input type="text" value="${cons.fruitore || ''}" data-index="${newIndex}" data-field="fruitore" placeholder="Lasciare vuoto se non applicabile"></td>
+                    <td><button type="button" class="btn-remove" onclick="rimuoviConsorziato(${newIndex})">RIMUOVI</button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function salvaConsorziati() {
+            // Aggiorna i dati dall'interfaccia
+            const inputs = document.querySelectorAll('#managementTableBody input');
+            
+            inputs.forEach(input => {
+                const index = parseInt(input.getAttribute('data-index'));
+                const field = input.getAttribute('data-field');
+                let value = input.value;
+                
+                if (field === 'numero' || field === 'ore' || field === 'minuti') {
+                    value = parseInt(value) || 0;
+                } else if (field === 'fruitore') {
+                    value = value.trim() || null;
+                }
+                
+                if (editingConsorziati[index]) {
+                    editingConsorziati[index][field] = value;
+                }
+            });
+            
+            // Validazioni
+            const errorDiv = document.getElementById('managementError');
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+            
+            // 1. Verifica numeri univoci
+            const numeri = editingConsorziati.map(c => c.numero);
+            const numeriDuplicati = numeri.filter((num, index) => numeri.indexOf(num) !== index);
+            
+            if (numeriDuplicati.length > 0) {
+                errorDiv.textContent = `ERRORE: I numeri dei consorziati devono essere univoci. Numero duplicato: ${numeriDuplicati[0]}`;
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            // 2. Verifica minuti validi
+            for (const cons of editingConsorziati) {
+                if (cons.minuti < 0 || cons.minuti > 59) {
+                    errorDiv.textContent = `ERRORE: I minuti devono essere compresi tra 0 e 59 (${cons.nome}: ${cons.minuti} minuti)`;
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+            }
+            
+            // 3. Verifica ore positive
+            for (const cons of editingConsorziati) {
+                if (cons.ore < 0) {
+                    errorDiv.textContent = `ERRORE: Le ore non possono essere negative (${cons.nome}: ${cons.ore} ore)`;
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+            }
+            
+            // 4. Verifica nome non vuoto
+            for (const cons of editingConsorziati) {
+                if (!cons.nome.trim()) {
+                    errorDiv.textContent = `ERRORE: Il nome del consorziato non può essere vuoto`;
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+            }
+            
+            // Salva i dati
+            consorziati = [...editingConsorziati];
+            
+            // Ordina per numero
+            consorziati.sort((a, b) => a.numero - b.numero);
+            
+            // Nascondi il pannello di gestione
+            nascondiGestioneConsorziati();
+            
+            // Notifica all'utente di rigenerare i turni
+            alert('Consorziati salvati con successo! Premi "GENERA TURNI" per aggiornare il calcolo con i nuovi dati.');
+        }
+
+        // Gestione eventi
+        document.getElementById('generateBtn').addEventListener('click', function() {
+            const year = parseInt(document.getElementById('yearSelect').value);
+            const errorDiv = document.getElementById('errorMessage');
+            const loadingDiv = document.getElementById('loadingMessage');
+            
+            errorDiv.style.display = 'none';
+            loadingDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                try {
+                    console.clear();
+                    console.log(`=== CALCOLO TURNI PER L'ANNO ${year} ===`);
+                    
+                    const result = calculateTurni(year);
+                    mostraStatistiche(result, year);
+                    generaHTMLTurni(result, year);
+                    
+                    loadingDiv.style.display = 'none';
+                    console.log(`=== CALCOLO COMPLETATO - ${result.turni.length} turni generati ===`);
+                } catch (error) {
+                    loadingDiv.style.display = 'none';
+                    errorDiv.textContent = `Errore nel calcolo: ${error.message}`;
+                    errorDiv.style.display = 'block';
+                    console.error("ERRORE:", error);
+                }
+            }, 500);
+        });
+
+        document.getElementById('printBtn').addEventListener('click', function() {
+            window.print();
+        });
+
+        document.getElementById('manageBtn').addEventListener('click', mostraGestioneConsorziati);
+        
+        document.getElementById('addConsorziatoBtn').addEventListener('click', aggiungiConsorziato);
+        
+        document.getElementById('saveConsorziatiBtn').addEventListener('click', salvaConsorziati);
+        
+        document.getElementById('cancelManageBtn').addEventListener('click', nascondiGestioneConsorziati);
+
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('it-IT', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('generateBtn').click();
+        });
+    </script>
 </body>
 </html>
