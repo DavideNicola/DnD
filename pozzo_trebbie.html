@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generatore Turni - Consorzio Pozzo Trebbie</title>
+    <title>Generatore Turni - Consorzio Pozzo Trebbiè</title>
     <style>
         * {
             margin: 0;
@@ -63,7 +63,7 @@
             min-width: 150px;
         }
 
-        select, button {
+        select, button, input {
             padding: 8px 15px;
             border: 1px solid #cbd5e0;
             border-radius: 4px;
@@ -81,6 +81,7 @@
             cursor: pointer;
             font-weight: bold;
             transition: background-color 0.3s;
+            border: none;
         }
 
         button:hover {
@@ -101,6 +102,7 @@
             margin: 20px 0;
             border: 1px solid #000;
             font-size: 13px;
+            font-family: 'Calibri', Arial, sans-serif;
         }
 
         .turno-table th {
@@ -109,6 +111,7 @@
             text-align: center;
             border: 1px solid #000;
             font-weight: bold;
+            font-family: 'Calibri', Arial, sans-serif;
         }
 
         .turno-table td {
@@ -116,6 +119,7 @@
             border: 1px solid #000;
             text-align: center;
             vertical-align: middle;
+            font-family: 'Calibri', Arial, sans-serif;
         }
 
         .turno-table tr:nth-child(even) {
@@ -137,22 +141,21 @@
             border: 1px solid #000;
             margin-top: 30px;
             font-size: 18px;
+            font-family: 'Calibri', Arial, sans-serif;
         }
 
         .fermo-row {
-            background-color: #ffe680 !important;
+            font-weight: bold;
+            font-family: 'Calibri', Arial, sans-serif;
+        }
+
+        .fermo-text {
+            color: #ff0000 !important;
             font-weight: bold;
         }
 
         .note-row {
-            background-color: #fffacd !important;
-            font-style: italic;
-        }
-
-        .note-row td {
-            font-style: italic;
-            text-align: left;
-            padding-left: 10px !important;
+            font-family: 'Calibri', Arial, sans-serif;
         }
 
         .footer {
@@ -160,8 +163,14 @@
             padding-top: 20px;
             border-top: 2px solid #2c5282;
             text-align: center;
-            font-size: 12px;
-            color: #666;
+            font-size: 14px;
+            color: #2c5282;
+            font-weight: bold;
+            font-family: 'Calibri', Arial, sans-serif;
+        }
+
+        .footer-print {
+            display: none;
         }
 
         .error {
@@ -173,14 +182,6 @@
             display: none;
         }
 
-        .info-panel {
-            background-color: #e6fffa;
-            border-left: 4px solid #38b2ac;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 0 4px 4px 0;
-        }
-
         .stats {
             background-color: #f7fafc;
             border: 1px solid #e2e8f0;
@@ -190,19 +191,152 @@
             font-size: 14px;
         }
 
+        /* Stili per la gestione consorziati */
+        .management-panel {
+            background-color: #fff5f5;
+            border: 1px solid #fed7d7;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .management-panel h3 {
+            color: #c53030;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #fed7d7;
+        }
+
+        .management-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 13px;
+        }
+
+        .management-table th {
+            background-color: #fed7d7;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #cbd5e0;
+            font-weight: bold;
+        }
+
+        .management-table td {
+            padding: 8px;
+            border: 1px solid #cbd5e0;
+            text-align: center;
+        }
+
+        .management-table input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #cbd5e0;
+            border-radius: 3px;
+        }
+
+        .management-table .small-input {
+            width: 60px;
+        }
+
+        .management-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-add {
+            background-color: #38a169;
+        }
+
+        .btn-remove {
+            background-color: #e53e3e;
+        }
+
+        .btn-save {
+            background-color: #3182ce;
+        }
+
+        .btn-cancel {
+            background-color: #718096;
+        }
+
+        .btn-manage {
+            background-color: #805ad5;
+        }
+
         @media print {
-            .controls, button, .info-panel, .stats {
+            .controls, button, .stats, .management-panel {
                 display: none;
             }
             
             body {
                 background: white;
-                padding: 10px;
+                padding: 0;
+                margin: 0;
+                font-family: 'Calibri', Arial, sans-serif;
             }
             
             .container {
                 box-shadow: none;
-                padding: 0;
+                padding: 10px;
+                margin: 0;
+                max-width: 100%;
+            }
+            
+            .header {
+                margin-bottom: 20px;
+                padding-bottom: 10px;
+            }
+            
+            .footer {
+                display: none;
+            }
+            
+            .footer-print {
+                display: block;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                text-align: center;
+                font-size: 12px;
+                font-weight: bold;
+                color: #2c5282;
+                padding: 10px;
+                border-top: 2px solid #2c5282;
+                font-family: 'Calibri', Arial, sans-serif;
+            }
+            
+            @page {
+                margin-bottom: 40px;
+                margin-top: 20px;
+            }
+            
+            .turno-table {
+                font-size: 12px;
+            }
+            
+            .turno-header {
+                font-size: 16px;
+                padding: 10px;
+                margin-top: 20px;
+            }
+            
+            /* Numerazione pagine */
+            body {
+                counter-reset: page;
+            }
+            
+            .footer-print::after {
+                counter-increment: page;
+                content: "Pagina " counter(page);
+                position: absolute;
+                right: 20px;
+                bottom: 10px;
+                font-size: 12px;
             }
         }
     </style>
@@ -210,33 +344,50 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>CONSORZIO IRRIGUO "POZZO TREBBIE"</h1>
-            <h2>GENERATORE TURNI AUTOMATICO</h2>
+            <h1>CONSORZIO IRRIGUO "POZZO TREBBIÈ"</h1>
+            <h2>GENERATORE TURNI STAGIONALI</h2>
         </div>
 
         <div class="controls">
             <div class="control-group">
                 <label for="yearSelect">Seleziona l'anno:</label>
                 <select id="yearSelect">
-                    <option value="2024">2024</option>
-                    <option value="2025" selected>2025</option>
-                    <option value="2026">2026</option>
-                    <option value="2027">2027</option>
+                    <!-- Anni verranno generati dinamicamente fino al 2100 -->
                 </select>
                 <button id="generateBtn">GENERA TURNI</button>
                 <button id="printBtn" style="background-color: #38a169;">STAMPA</button>
+                <button id="manageBtn" class="btn-manage">GESTISCI CONSORZIATI</button>
+            </div>
+        </div>
+
+        <!-- Pannello di gestione consorziati -->
+        <div class="management-panel" id="managementPanel">
+            <h3>GESTIONE CONSORZIATI</h3>
+            <p>Modifica l'elenco dei consorziati. I numeri devono essere univoci. Lascia vuoto "Fruitore" se non applicabile.</p>
+            
+            <table class="management-table" id="managementTable">
+                <thead>
+                    <tr>
+                        <th>N°</th>
+                        <th>COGNOME E NOME</th>
+                        <th>ORE</th>
+                        <th>MINUTI</th>
+                        <th>FRUITORE (opzionale)</th>
+                        <th>AZIONI</th>
+                    </tr>
+                </thead>
+                <tbody id="managementTableBody">
+                    <!-- Le righe verranno generate dinamicamente -->
+                </tbody>
+            </table>
+            
+            <div class="management-actions">
+                <button id="addConsorziatoBtn" class="btn-add">AGGIUNGI CONSORZIATO</button>
+                <button id="saveConsorziatiBtn" class="btn-save">SALVA MODIFICHE</button>
+                <button id="cancelManageBtn" class="btn-cancel">ANNULLA</button>
             </div>
             
-            <div class="info-panel">
-                <p><strong>Regole operative CORRETTE:</strong></p>
-                <ul style="margin-left: 20px; margin-top: 5px;">
-                    <li><strong>Inizio stagione:</strong> 1 Aprile ore <strong>00:00</strong> dell'anno selezionato</li>
-                    <li><strong>Fermi domenicali:</strong> solo UNA DOMENICA OGNI 15 GIORNI (alternanza)</li>
-                    <li><strong>Fermo 15 agosto:</strong> 00:00 del 15/08 → 02:30 del 16/08 (sempre fermo)</li>
-                    <li><strong>Fine stagione:</strong> 1 Ottobre (inizio fermo stagionale)</li>
-                    <li><strong>Turni divisi:</strong> solo se il fermo cade in mezzo alle ore di un consorziato</li>
-                </ul>
-            </div>
+            <div id="managementError" class="error"></div>
         </div>
 
         <div class="error" id="errorMessage"></div>
@@ -252,14 +403,18 @@
         </div>
 
         <div class="footer">
-            <p>CONSORZIO IRRIGUO "POZZO TREBBIE" - Generatore Turni Automatico</p>
-            <p>Sistema sviluppato secondo le specifiche operative - Documento generato il: <span id="currentDate"></span></p>
+            <p>CONSORZIO IRRIGUO "POZZO TREBBIÈ" - Turni pozzo anno <span id="currentYear"></span></p>
+        </div>
+        
+        <!-- Footer per la stampa -->
+        <div class="footer-print">
+            <p>CONSORZIO IRRIGUO "POZZO TREBBIÈ" - Turni pozzo anno <span id="printYear"></span></p>
         </div>
     </div>
 
     <script>
-        // Dati dei consorziati (ore di diritto)
-        const consorziati = [
+        // Dati iniziali dei consorziati (ore di diritto)
+        let consorziati = [
             { numero: 1, nome: "Oggero F.lli", ore: 29, minuti: 0, fruitore: null },
             { numero: 2, nome: "Panero Giovanni", ore: 13, minuti: 50, fruitore: "Oggero F.lli" },
             { numero: 3, nome: "Allasia Plant", ore: 10, minuti: 0, fruitore: null },
@@ -279,6 +434,34 @@
             { numero: 17, nome: "Tosco Bernardino", ore: 36, minuti: 45, fruitore: null },
             { numero: 18, nome: "Camisassi Piergiorgio", ore: 11, minuti: 30, fruitore: null }
         ];
+
+        // Variabile per tracciare i dati temporanei durante la modifica
+        let editingConsorziati = [];
+
+        // Popola la select degli anni (fino al 2100)
+        function populateYearSelect() {
+            const yearSelect = document.getElementById('yearSelect');
+            yearSelect.innerHTML = '';
+            
+            const currentYear = new Date().getFullYear();
+            const startYear = 2024;
+            const endYear = 2100;
+            
+            for (let year = startYear; year <= endYear; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                if (year === currentYear) {
+                    option.selected = true;
+                }
+                yearSelect.appendChild(option);
+            }
+            
+            // Se l'anno corrente è inferiore a 2024, seleziona 2024
+            if (currentYear < 2024) {
+                yearSelect.value = 2024;
+            }
+        }
 
         // Funzioni di utilità
         function formatDate(date) {
@@ -682,7 +865,6 @@
                 }
                 
                 // NON aggiungere minuti extra, inizia esattamente alla fine del turno precedente
-                // currentDate = new Date(currentDate.getTime() + (60 * 1000));
             }
             
             return {
@@ -700,16 +882,19 @@
                 <h3>Statistiche Stagione ${year}</h3>
                 <p><strong>Periodo stagionale:</strong> 1 Aprile ${year} - 1 Ottobre ${year} (${giorniStagione} giorni)</p>
                 <p><strong>Totale turni generati:</strong> ${result.turni.length}</p>
-                <p><strong>Consorziati per turno:</strong> 18</p>
+                <p><strong>Consorziati per turno:</strong> ${consorziati.length}</p>
                 <p><strong>Primo turno iniziato:</strong> 1 Aprile ${year} ore 00:00</p>
                 <p><strong>Ultimo turno completato:</strong> ${formatDate(result.turni[result.turni.length - 1].dataFine)}</p>
-                <p><strong>Nota:</strong> Fermo domenicale solo una domenica ogni 15 giorni (alternanza)</p>
             `;
         }
 
         function generaHTMLTurni(result, year) {
             const container = document.getElementById('turniContainer');
             container.innerHTML = '';
+            
+            // Aggiorna l'anno nel footer
+            document.getElementById('currentYear').textContent = year;
+            document.getElementById('printYear').textContent = year;
             
             const mesi = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", 
                          "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
@@ -718,14 +903,14 @@
             turni.forEach(turno => {
                 const meseInizio = mesi[turno.meseInizio];
                 const meseFine = mesi[turno.meseFine];
-                const titoloTurno = meseInizio === meseFine ? meseInizio : `${meseInizio}/${meseFine}`;
+                // MODIFICATO: ora mostra sempre nella forma mese/mese (anche se uguali)
+                const titoloTurno = `${meseInizio}/${meseFine}`;
                 
                 const turnoDiv = document.createElement('div');
                 
                 const consorziatiHTML = [];
                 
                 // Ordina i consorziati per numero e indice di inserimento
-                // Questo mantiene l'ordine corretto: parte 1, FERMO, parte 2 per ogni consorziato
                 turno.consorziati.sort((a, b) => {
                     if (a.numero !== b.numero) return a.numero - b.numero;
                     return a.indiceInserimento - b.indiceInserimento;
@@ -745,17 +930,33 @@
                     
                     const rowClass = cons.fruitore ? 'note-row' : (cons.isFermoRow ? 'fermo-row' : '');
                     
-                    consorziatiHTML.push(`
-                        <tr class="${rowClass}">
-                            <td class="num-col">${cons.isFermoRow ? '' : cons.numero}</td>
-                            <td class="nome-col">${nomeCompleto}</td>
-                            <td class="ore-col">${cons.isFermoRow ? '' : formatTime(cons.ore, cons.minuti)}</td>
-                            <td class="ora-col">${formatTime(cons.inizio.getHours(), cons.inizio.getMinutes())}</td>
-                            <td class="data-col">${formatDate(cons.inizio)}</td>
-                            <td class="ora-col">${formatTime(cons.fine.getHours(), cons.fine.getMinutes())}</td>
-                            <td class="data-col">${formatDate(cons.fine)}</td>
-                        </tr>
-                    `);
+                    if (cons.isFermoRow) {
+                        // Per la riga FERMO, mostriamo solo FERMO in rosso e la data di inizio
+                        consorziatiHTML.push(`
+                            <tr class="${rowClass}">
+                                <td class="num-col"></td>
+                                <td class="nome-col"><span class="fermo-text">FERMO</span></td>
+                                <td class="ore-col"></td>
+                                <td class="ora-col"></td>
+                                <td class="data-col"><span class="fermo-text">${formatDate(cons.inizio)}</span></td>
+                                <td class="ora-col"></td>
+                                <td class="data-col"></td>
+                            </tr>
+                        `);
+                    } else {
+                        // Per le righe normali
+                        consorziatiHTML.push(`
+                            <tr class="${rowClass}">
+                                <td class="num-col">${cons.numero}</td>
+                                <td class="nome-col">${nomeCompleto}</td>
+                                <td class="ore-col">${formatTime(cons.ore, cons.minuti)}</td>
+                                <td class="ora-col">${formatTime(cons.inizio.getHours(), cons.inizio.getMinutes())}</td>
+                                <td class="data-col">${formatDate(cons.inizio)}</td>
+                                <td class="ora-col">${formatTime(cons.fine.getHours(), cons.fine.getMinutes())}</td>
+                                <td class="data-col">${formatDate(cons.fine)}</td>
+                            </tr>
+                        `);
+                    }
                 }
                 
                 turnoDiv.innerHTML = `
@@ -786,24 +987,185 @@
                 
                 container.appendChild(turnoDiv);
             });
-            
-            const noteDiv = document.createElement('div');
-            noteDiv.innerHTML = `
-                <div style="margin-top: 30px; font-size: 12px; border: 1px solid #000; padding: 10px; background-color: #f8f9fa;">
-                    <p><strong>Note operative per l'anno ${year}:</strong></p>
-                    <p>1. <strong>Inizio stagione:</strong> 1 Aprile ${year} ore <strong>00:00</strong></p>
-                    <p>2. <strong>Fermi domenicali:</strong> solo UNA DOMENICA OGNI 15 GIORNI (alternanza: 1ª FERMO - 2ª LAVORA - 3ª FERMO - ecc.)</p>
-                    <p>3. <strong>Sabati:</strong> NON sono giorni di fermo</p>
-                    <p>4. <strong>Lunedì:</strong> fermi fino alle 02:30 solo se la domenica precedente era di fermo</p>
-                    <p>5. <strong>Fermo 15 agosto:</strong> dalle 00:00 del 15/08/${year} alle 2:30 del 16/08/${year} (sempre)</p>
-                    <p>6. <strong>Fine stagione:</strong> 1 Ottobre ${year} ore 00:00 (inizio fermo stagionale)</p>
-                    <p>7. <strong>Totale turni stagione:</strong> ${turni.length}</p>
-                    <p>8. <strong>Turni divisi:</strong> i turni vengono divisi solo se un fermo cade durante le ore di un consorziato, con riga "FERMO" inserita tra le due parti</p>
-                    <p>9. <strong>Orario fermo:</strong> i fermi iniziano sempre alle 00:00 del giorno indicato</p>
-                </div>
-            `;
-            container.appendChild(noteDiv);
         }
+
+        // FUNZIONI PER LA GESTIONE DEI CONSORZIATI
+        function mostraGestioneConsorziati() {
+            const panel = document.getElementById('managementPanel');
+            const tableBody = document.getElementById('managementTableBody');
+            
+            // Copia i consorziati attuali per la modifica
+            editingConsorziati = JSON.parse(JSON.stringify(consorziati));
+            
+            // Popola la tabella
+            tableBody.innerHTML = '';
+            editingConsorziati.forEach((cons, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><input type="number" class="small-input" value="${cons.numero}" min="1" data-index="${index}" data-field="numero"></td>
+                    <td><input type="text" value="${cons.nome}" data-index="${index}" data-field="nome"></td>
+                    <td><input type="number" class="small-input" value="${cons.ore}" min="0" max="99" data-index="${index}" data-field="ore"></td>
+                    <td><input type="number" class="small-input" value="${cons.minuti}" min="0" max="59" data-index="${index}" data-field="minuti"></td>
+                    <td><input type="text" value="${cons.fruitore || ''}" data-index="${index}" data-field="fruitore" placeholder="Lasciare vuoto se non applicabile"></td>
+                    <td><button type="button" class="btn-remove" onclick="rimuoviConsorziato(${index})">RIMUOVI</button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Mostra il pannello
+            panel.style.display = 'block';
+            document.getElementById('managementError').style.display = 'none';
+            
+            // Nascondi la sezione dei turni per maggiore chiarezza
+            document.getElementById('turniContainer').style.display = 'none';
+            document.getElementById('statsContainer').style.display = 'none';
+        }
+
+        function nascondiGestioneConsorziati() {
+            document.getElementById('managementPanel').style.display = 'none';
+            document.getElementById('turniContainer').style.display = 'block';
+            document.getElementById('statsContainer').style.display = 'block';
+            document.getElementById('managementError').style.display = 'none';
+        }
+
+        function aggiungiConsorziato() {
+            // Trova il numero più alto attuale
+            const maxNumero = editingConsorziati.length > 0 
+                ? Math.max(...editingConsorziati.map(c => c.numero))
+                : 0;
+            
+            // Aggiungi un nuovo consorziato con valori di default
+            const nuovoConsorziato = {
+                numero: maxNumero + 1,
+                nome: "Nuovo Consorziato",
+                ore: 0,
+                minuti: 0,
+                fruitore: null
+            };
+            
+            editingConsorziati.push(nuovoConsorziato);
+            
+            // Aggiorna la tabella
+            const tableBody = document.getElementById('managementTableBody');
+            const index = editingConsorziati.length - 1;
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="number" class="small-input" value="${nuovoConsorziato.numero}" min="1" data-index="${index}" data-field="numero"></td>
+                <td><input type="text" value="${nuovoConsorziato.nome}" data-index="${index}" data-field="nome"></td>
+                <td><input type="number" class="small-input" value="${nuovoConsorziato.ore}" min="0" max="99" data-index="${index}" data-field="ore"></td>
+                <td><input type="number" class="small-input" value="${nuovoConsorziato.minuti}" min="0" max="59" data-index="${index}" data-field="minuti"></td>
+                <td><input type="text" value="${nuovoConsorziato.fruitore || ''}" data-index="${index}" data-field="fruitore" placeholder="Lasciare vuoto se non applicabile"></td>
+                <td><button type="button" class="btn-remove" onclick="rimuoviConsorziato(${index})">RIMUOVI</button></td>
+            `;
+            tableBody.appendChild(row);
+        }
+
+        function rimuoviConsorziato(index) {
+            // Rimuovi il consorziato dall'array
+            editingConsorziati.splice(index, 1);
+            
+            // Ricostruisci la tabella con gli indici aggiornati
+            const tableBody = document.getElementById('managementTableBody');
+            tableBody.innerHTML = '';
+            
+            editingConsorziati.forEach((cons, newIndex) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><input type="number" class="small-input" value="${cons.numero}" min="1" data-index="${newIndex}" data-field="numero"></td>
+                    <td><input type="text" value="${cons.nome}" data-index="${newIndex}" data-field="nome"></td>
+                    <td><input type="number" class="small-input" value="${cons.ore}" min="0" max="99" data-index="${newIndex}" data-field="ore"></td>
+                    <td><input type="number" class="small-input" value="${cons.minuti}" min="0" max="59" data-index="${newIndex}" data-field="minuti"></td>
+                    <td><input type="text" value="${cons.fruitore || ''}" data-index="${newIndex}" data-field="fruitore" placeholder="Lasciare vuoto se non applicabile"></td>
+                    <td><button type="button" class="btn-remove" onclick="rimuoviConsorziato(${newIndex})">RIMUOVI</button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function salvaConsorziati() {
+            // Aggiorna i dati dall'interfaccia
+            const inputs = document.querySelectorAll('#managementTableBody input');
+            
+            inputs.forEach(input => {
+                const index = parseInt(input.getAttribute('data-index'));
+                const field = input.getAttribute('data-field');
+                let value = input.value;
+                
+                if (field === 'numero' || field === 'ore' || field === 'minuti') {
+                    value = parseInt(value) || 0;
+                } else if (field === 'fruitore') {
+                    value = value.trim() || null;
+                }
+                
+                if (editingConsorziati[index]) {
+                    editingConsorziati[index][field] = value;
+                }
+            });
+            
+            // Validazioni
+            const errorDiv = document.getElementById('managementError');
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+            
+            // 1. Verifica numeri univoci
+            const numeri = editingConsorziati.map(c => c.numero);
+            const numeriDuplicati = numeri.filter((num, index) => numeri.indexOf(num) !== index);
+            
+            if (numeriDuplicati.length > 0) {
+                errorDiv.textContent = `ERRORE: I numeri dei consorziati devono essere univoci. Numero duplicato: ${numeriDuplicati[0]}`;
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            // 2. Verifica minuti validi
+            for (const cons of editingConsorziati) {
+                if (cons.minuti < 0 || cons.minuti > 59) {
+                    errorDiv.textContent = `ERRORE: I minuti devono essere compresi tra 0 e 59 (${cons.nome}: ${cons.minuti} minuti)`;
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+            }
+            
+            // 3. Verifica ore positive
+            for (const cons of editingConsorziati) {
+                if (cons.ore < 0) {
+                    errorDiv.textContent = `ERRORE: Le ore non possono essere negative (${cons.nome}: ${cons.ore} ore)`;
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+            }
+            
+            // 4. Verifica nome non vuoto
+            for (const cons of editingConsorziati) {
+                if (!cons.nome.trim()) {
+                    errorDiv.textContent = `ERRORE: Il nome del consorziato non può essere vuoto`;
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+            }
+            
+            // Salva i dati
+            consorziati = [...editingConsorziati];
+            
+            // Ordina per numero
+            consorziati.sort((a, b) => a.numero - b.numero);
+            
+            // Nascondi il pannello di gestione
+            nascondiGestioneConsorziati();
+            
+            // Notifica all'utente di rigenerare i turni
+            alert('Consorziati salvati con successo! Premi "GENERA TURNI" per aggiornare il calcolo con i nuovi dati.');
+        }
+
+        // Inizializzazione
+        document.addEventListener('DOMContentLoaded', function() {
+            // Popola la select degli anni
+            populateYearSelect();
+            
+            // Genera i turni per l'anno corrente
+            document.getElementById('generateBtn').click();
+        });
 
         // Gestione eventi
         document.getElementById('generateBtn').addEventListener('click', function() {
@@ -838,15 +1200,13 @@
             window.print();
         });
 
-        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('it-IT', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('generateBtn').click();
-        });
+        document.getElementById('manageBtn').addEventListener('click', mostraGestioneConsorziati);
+        
+        document.getElementById('addConsorziatoBtn').addEventListener('click', aggiungiConsorziato);
+        
+        document.getElementById('saveConsorziatiBtn').addEventListener('click', salvaConsorziati);
+        
+        document.getElementById('cancelManageBtn').addEventListener('click', nascondiGestioneConsorziati);
     </script>
 </body>
 </html>
