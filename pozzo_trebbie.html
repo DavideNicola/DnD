@@ -169,6 +169,7 @@
             font-weight: bold;
         }
 
+        /* Tabelle comuni */
         .turno-table {
             width: 100%;
             border-collapse: collapse;
@@ -205,6 +206,7 @@
         .ora-col { width: 80px; }
         .data-col { width: 160px; text-align: left; padding-left: 10px !important; }
 
+        /* Intestazioni tabelle */
         .turno-header {
             background-color: #4a90e2;
             color: white;
@@ -214,6 +216,18 @@
             border: 1px solid #000;
             margin-top: 30px;
             font-size: 18px;
+            font-family: 'Calibri', Arial, sans-serif;
+        }
+
+        .consorziato-header {
+            background-color: #38a169;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            padding: 12px;
+            border: 1px solid #000;
+            margin-top: 40px;
+            font-size: 16px;
             font-family: 'Calibri', Arial, sans-serif;
         }
 
@@ -231,6 +245,59 @@
             font-family: 'Calibri', Arial, sans-serif;
         }
 
+        /* Selettore visualizzazione */
+        .view-selector {
+            background-color: #e6fffa;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border: 1px solid #81e6d9;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .view-selector label {
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .view-selector select {
+            min-width: 250px;
+            background-color: white;
+        }
+
+        /* Stile per le tabelle consorziati */
+        .consorziato-table-container {
+            page-break-inside: avoid;
+            margin-bottom: 40px;
+        }
+
+        .consorziato-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            border: 1px solid #000;
+            font-size: 12px;
+        }
+
+        .consorziato-table th {
+            background-color: #c6f6d5;
+            padding: 6px 4px;
+            text-align: center;
+            border: 1px solid #000;
+            font-weight: bold;
+        }
+
+        .consorziato-table td {
+            padding: 6px 4px;
+            border: 1px solid #000;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        /* Footer */
         .footer {
             margin-top: 40px;
             padding-top: 20px;
@@ -349,7 +416,7 @@
         }
 
         @media print {
-            .controls, button, .stats, .management-panel, .btn-logout {
+            .controls, button, .stats, .management-panel, .btn-logout, .view-selector {
                 display: none;
             }
             
@@ -396,14 +463,14 @@
                 margin-top: 20px;
             }
             
-            .turno-table {
-                font-size: 12px;
+            .turno-table, .consorziato-table {
+                font-size: 11px;
             }
             
-            .turno-header {
-                font-size: 16px;
-                padding: 10px;
-                margin-top: 20px;
+            .turno-header, .consorziato-header {
+                font-size: 14px;
+                padding: 8px;
+                margin-top: 15px;
             }
             
             /* Numerazione pagine */
@@ -417,7 +484,7 @@
                 position: absolute;
                 right: 20px;
                 bottom: 10px;
-                font-size: 12px;
+                font-size: 11px;
             }
         }
     </style>
@@ -455,6 +522,15 @@
                 <button id="manageBtn" class="btn-manage">GESTISCI CONSORZIATI</button>
                 <button onclick="logout()" class="btn-logout">LOGOUT</button>
             </div>
+        </div>
+
+        <!-- Selettore visualizzazione -->
+        <div class="view-selector hidden" id="viewSelector">
+            <label for="viewType">Visualizzazione:</label>
+            <select id="viewType">
+                <option value="turni">Tabella Turni Completa</option>
+                <option value="consorziati">Tabelle Individuali Consorziati</option>
+            </select>
         </div>
 
         <!-- Pannello di gestione consorziati -->
@@ -495,9 +571,8 @@
 
         <div id="statsContainer" class="stats"></div>
 
-        <div id="turniContainer">
-            <!-- Qui verranno inseriti i turni calcolati -->
-        </div>
+        <!-- Container per la visualizzazione selezionata -->
+        <div id="viewContainer"></div>
 
         <div class="footer">
             <p>CONSORZIO IRRIGUO "POZZO TREBBIÈ" - Turni pozzo anno <span id="currentYear"></span></p>
@@ -537,6 +612,9 @@
 
         // Variabile per tracciare i dati temporanei durante la modifica
         let editingConsorziati = [];
+
+        // Variabile per memorizzare i turni calcolati
+        let turniCalcolati = [];
 
         // Gestione del login
         document.addEventListener('DOMContentLoaded', function() {
@@ -611,11 +689,11 @@
             // Popola la select degli anni
             populateYearSelect();
             
-            // Genera i turni per l'anno corrente
-            document.getElementById('generateBtn').click();
-            
             // Imposta gli event listener
             setupEventListeners();
+            
+            // Genera i turni per l'anno corrente
+            document.getElementById('generateBtn').click();
         }
 
         // Popola la select degli anni (fino al 2100)
@@ -901,7 +979,8 @@
                             inizio: new Date(dataCorrente),
                             fine: new Date(fineParte),
                             parte: parte,
-                            diviso: true
+                            diviso: true,
+                            turnoNumero: turnoNumero
                         });
                         
                         oreRimanenti -= oreDaUsare;
@@ -940,7 +1019,8 @@
                         inizio: new Date(dataCorrente),
                         fine: new Date(fineParte),
                         parte: parte,
-                        diviso: false
+                        diviso: false,
+                        turnoNumero: turnoNumero
                     });
                     
                     dataCorrente = new Date(fineParte);
@@ -1007,7 +1087,8 @@
                             parte: 0,
                             diviso: false,
                             isFermoRow: true,
-                            indiceInserimento: turno.indiceInserimento++
+                            indiceInserimento: turno.indiceInserimento++,
+                            turnoNumero: turnoNumero
                         };
                         turno.consorziati.push(rigaFermo);
                         
@@ -1068,13 +1149,9 @@
             `;
         }
 
-        function generaHTMLTurni(result, year) {
-            const container = document.getElementById('turniContainer');
+        function generaHTMLTurniCompleti(result, year) {
+            const container = document.getElementById('viewContainer');
             container.innerHTML = '';
-            
-            // Aggiorna l'anno nel footer
-            document.getElementById('currentYear').textContent = year;
-            document.getElementById('printYear').textContent = year;
             
             const mesi = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", 
                          "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
@@ -1083,7 +1160,6 @@
             turni.forEach(turno => {
                 const meseInizio = mesi[turno.meseInizio];
                 const meseFine = mesi[turno.meseFine];
-                // MODIFICATO: ora mostra sempre nella forma mese/mese (anche se uguali)
                 const titoloTurno = `${meseInizio}/${meseFine}`;
                 
                 const turnoDiv = document.createElement('div');
@@ -1169,6 +1245,128 @@
             });
         }
 
+        function generaHTMLConsorziatiIndividuali(result, year) {
+            const container = document.getElementById('viewContainer');
+            container.innerHTML = '';
+            
+            // Raggruppa i turni per consorziato
+            const turniPerConsorziato = {};
+            
+            // Inizializza per ogni consorziato
+            consorziati.forEach(cons => {
+                turniPerConsorziato[cons.numero] = {
+                    nome: cons.nome,
+                    fruitore: cons.fruitore,
+                    turni: []
+                };
+            });
+            
+            // Raccogli tutti i turni
+            result.turni.forEach(turno => {
+                turno.consorziati.forEach(consTurno => {
+                    if (consTurno.numero) {
+                        turniPerConsorziato[consTurno.numero].turni.push(consTurno);
+                    }
+                });
+            });
+            
+            // Ordina i consorziati per numero
+            const consorziatiOrdinati = Object.keys(turniPerConsorziato)
+                .map(num => ({ numero: parseInt(num), ...turniPerConsorziato[num] }))
+                .sort((a, b) => a.numero - b.numero);
+            
+            // Genera una tabella per ogni consorziato
+            consorziatiOrdinati.forEach(cons => {
+                if (cons.turni.length === 0) return;
+                
+                const containerDiv = document.createElement('div');
+                containerDiv.className = 'consorziato-table-container';
+                
+                const nomeCompleto = cons.fruitore 
+                    ? `${cons.nome} (ore usate da ${cons.fruitore})`
+                    : cons.nome;
+                
+                // Calcola totale ore (escludendo FERMO)
+                let totaleOre = 0;
+                let totaleMinuti = 0;
+                
+                cons.turni.forEach(turno => {
+                    if (!turno.isFermoRow) {
+                        totaleOre += turno.ore;
+                        totaleMinuti += turno.minuti;
+                    }
+                });
+                
+                // Converti minuti extra in ore
+                totaleOre += Math.floor(totaleMinuti / 60);
+                totaleMinuti = totaleMinuti % 60;
+                
+                const turniHTML = cons.turni.map(turno => {
+                    if (turno.isFermoRow) {
+                        // Riga FERMO
+                        return `
+                            <tr class="fermo-row">
+                                <td><span class="fermo-text">FERMO</span></td>
+                                <td></td>
+                                <td></td>
+                                <td><span class="fermo-text">${formatDate(turno.inizio)}</span></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        `;
+                    } else {
+                        // Riga normale
+                        return `
+                            <tr>
+                                <td>TURNO ${turno.turnoNumero}</td>
+                                <td>${formatTime(turno.ore, turno.minuti)}</td>
+                                <td>${formatTime(turno.inizio.getHours(), turno.inizio.getMinutes())}</td>
+                                <td>${formatDate(turno.inizio)}</td>
+                                <td>${formatTime(turno.fine.getHours(), turno.fine.getMinutes())}</td>
+                                <td>${formatDate(turno.fine)}</td>
+                            </tr>
+                        `;
+                    }
+                }).join('');
+                
+                containerDiv.innerHTML = `
+                    <div class="consorziato-header">
+                        CONSORZIATO N° ${cons.numero} - ${nomeCompleto} - TOTALE ORE: ${formatTime(totaleOre, totaleMinuti)}
+                    </div>
+                    <table class="consorziato-table">
+                        <thead>
+                            <tr>
+                                <th>TURNO</th>
+                                <th>ORE</th>
+                                <th>DALLE ORE</th>
+                                <th>DEL GIORNO</th>
+                                <th>ALLE ORE</th>
+                                <th>DEL GIORNO</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${turniHTML}
+                        </tbody>
+                    </table>
+                `;
+                
+                container.appendChild(containerDiv);
+            });
+        }
+
+        function aggiornaVisualizzazione() {
+            const viewType = document.getElementById('viewType').value;
+            const year = parseInt(document.getElementById('yearSelect').value);
+            
+            if (turniCalcolati.length === 0) return;
+            
+            if (viewType === 'turni') {
+                generaHTMLTurniCompleti(turniCalcolati, year);
+            } else {
+                generaHTMLConsorziatiIndividuali(turniCalcolati, year);
+            }
+        }
+
         // FUNZIONI PER LA GESTIONE DEI CONSORZIATI
         function mostraGestioneConsorziati() {
             const panel = document.getElementById('managementPanel');
@@ -1197,8 +1395,9 @@
             document.getElementById('managementError').style.display = 'none';
             
             // Nascondi la sezione dei turni per maggiore chiarezza
-            document.getElementById('turniContainer').style.display = 'none';
+            document.getElementById('viewContainer').style.display = 'none';
             document.getElementById('statsContainer').style.display = 'none';
+            document.getElementById('viewSelector').style.display = 'none';
         }
 
         function rimuoviConsorziatoHandler(index) {
@@ -1225,8 +1424,9 @@
 
         function nascondiGestioneConsorziati() {
             document.getElementById('managementPanel').style.display = 'none';
-            document.getElementById('turniContainer').style.display = 'block';
+            document.getElementById('viewContainer').style.display = 'block';
             document.getElementById('statsContainer').style.display = 'block';
+            document.getElementById('viewSelector').style.display = 'flex';
             document.getElementById('managementError').style.display = 'none';
         }
 
@@ -1353,8 +1553,19 @@
                         console.log(`=== CALCOLO TURNI PER L'ANNO ${year} ===`);
                         
                         const result = calculateTurni(year);
+                        turniCalcolati = result;
+                        
                         mostraStatistiche(result, year);
-                        generaHTMLTurni(result, year);
+                        
+                        // Mostra il selettore di visualizzazione
+                        document.getElementById('viewSelector').classList.remove('hidden');
+                        
+                        // Aggiorna l'anno nel footer
+                        document.getElementById('currentYear').textContent = year;
+                        document.getElementById('printYear').textContent = year;
+                        
+                        // Genera la visualizzazione predefinita
+                        aggiornaVisualizzazione();
                         
                         loadingDiv.style.display = 'none';
                         console.log(`=== CALCOLO COMPLETATO - ${result.turni.length} turni generati ===`);
@@ -1378,6 +1589,9 @@
             document.getElementById('saveConsorziatiBtn').addEventListener('click', salvaConsorziati);
             
             document.getElementById('cancelManageBtn').addEventListener('click', nascondiGestioneConsorziati);
+            
+            // Listener per cambio visualizzazione
+            document.getElementById('viewType').addEventListener('change', aggiornaVisualizzazione);
         }
 
         // Inizializzazione avviene dopo il login
