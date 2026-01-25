@@ -169,7 +169,6 @@
             font-weight: bold;
         }
 
-        /* Tabelle comuni */
         .turno-table {
             width: 100%;
             border-collapse: collapse;
@@ -206,7 +205,6 @@
         .ora-col { width: 80px; }
         .data-col { width: 160px; text-align: left; padding-left: 10px !important; }
 
-        /* Intestazioni tabelle */
         .turno-header {
             background-color: #4a90e2;
             color: white;
@@ -268,17 +266,16 @@
             background-color: white;
         }
 
-        /* Stile per le tabelle consorziati */
-        .consorziato-table-container {
+        .consorziato-container {
             page-break-inside: avoid;
+            break-inside: avoid;
             margin-bottom: 40px;
         }
 
-        /* Stile per i container dei singoli turni (evita che la tabella si spezzi su più pagine) */
         .turno-container {
             page-break-inside: avoid;
             break-inside: avoid;
-            margin-bottom: 24px;
+            margin-bottom: 40px;
         }
 
         .consorziato-table {
@@ -304,7 +301,6 @@
             vertical-align: middle;
         }
 
-        /* Footer */
         .footer {
             margin-top: 40px;
             padding-top: 20px;
@@ -321,7 +317,7 @@
         }
 
         /* Elemento ricorrente per la stampa (nascosto sul sito) */
-        .print-header {
+        .print-recurring {
             display: none;
         }
 
@@ -427,11 +423,16 @@
             background-color: #c53030 !important;
         }
 
+        @page {
+            size: A4 landscape;
+            margin: 8mm 8mm 8mm 8mm;
+        }
+
         @media print {
             .controls, button, .stats, .management-panel, .btn-logout, .view-selector {
                 display: none;
             }
-            
+
             body {
                 background: white;
                 padding: 0;
@@ -442,84 +443,83 @@
             .container {
                 box-shadow: none;
                 padding: 5mm;
-                margin: 0;
+                margin: 10mm;
                 max-width: 100%;
             }
             
             .header {
-                display: none;
+                margin-bottom: 10px;
+                padding-bottom: 5px;
+                font-size: 14px;
+                display: none !important;
             }
             
-            .print-header {
-                display: block;
-                text-align: center;
+            .header h1 {
+                font-size: 20px;
+                margin-bottom: 5px;
+            }
+            
+            .header h2 {
+                font-size: 16px;
+            }
+            
+            .print-recurring {
+                display: flex;
+                position: fixed;
+                top: 0;
+                left: 8mm;
+                right: 8mm;
+                justify-content: space-between;
+                align-items: center;
+                padding: 4mm 8mm;
+                gap: 8px;
+                background: white;
+                border-bottom: 1px solid #2c5282;
+                z-index: 9999;
                 font-family: 'Calibri', Arial, sans-serif;
-                color: #2c5282;
-                padding: 8mm 0 5mm 0;
-                border-bottom: 2px solid #2c5282;
-                margin-bottom: 5mm;
             }
-            
-            .print-header h1 {
-                font-size: 18px;
+
+            .print-recurring h2 {
+                font-size: 12px;
                 font-weight: bold;
                 margin: 0;
-                padding: 0;
+                text-align: left;
             }
-            
-            .print-header h2 {
-                font-size: 16px;
+
+            .print-recurring h1 {
+                font-size: 12px;
                 font-weight: bold;
-                margin: 3px 0 0 0;
-                padding: 0;
+                margin: 0;
+                text-align: right;
             }
-            
-            .footer {
-                display: none;
-            }
-            
-            .footer-print {
+
+            .turno-container::before,
+            .consorziato-container::before {
+                content: "";
                 display: block;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                text-align: center;
-                font-size: 9px;
-                font-weight: bold;
-                color: #2c5282;
-                padding: 6px;
-                border-top: 1px solid #2c5282;
-                font-family: 'Calibri', Arial, sans-serif;
-                background: white;
+                height: 6mm;
             }
             
-            @page {
-                size: A4 landscape;
-                margin: 8mm 8mm 15mm 8mm;
-            }
-            
-            /* Ogni turno in una pagina separata - il container mantiene insieme titolo e tabella */
-            .turno-container {
-                page-break-before: always;
-                page-break-after: auto;
-                page-break-inside: avoid;
-                break-before: page;
-                break-after: auto;
-                break-inside: avoid;
+            /* Containers — allow split */
+            .turno-container,
+            .consorziato-container {
+                page-break-before: always;  /* start on new page */
+                break-before: always;
                 display: block;
                 position: relative;
+                padding-top: 16mm; /* optional: reduce if header-only occurs */
             }
             
-            /* Primo turno non deve avere page-break-before */
-            .turno-container:first-child {
+            .turno-container:first-child,
+            .consorziato-container:first-child {
                 page-break-before: auto;
                 break-before: auto;
+                padding-top: 2mm;
             }
             
-            /* Il titolo del turno deve rimanere attaccato alla tabella */
-            .turno-header {
-                font-size: 14px;
+            .turno-header,
+            .consorziato-header {
+                font-size: 18px;
                 padding: 6px;
                 margin-top: 0;
                 margin-bottom: 4px;
@@ -527,79 +527,65 @@
                 break-after: avoid;
             }
             
-            /* Ridimensionamento automatico della tabella basato sul numero di righe */
-            .turno-table {
-                font-size: 10px;
+            /* Tables — avoid splitting rows */
+            .turno-table,
+            .consorziato-table {
                 width: 100%;
-                page-break-inside: avoid;
+                font-size: 14px;
+                page-break-inside: avoid; /* table itself won't split mid-row */
                 break-inside: avoid;
             }
-            
-            .turno-table th {
+
+            .turno-table tr,
+            .consorziato-table tr {
+                page-break-inside: avoid; /* keep each row intact */
+                break-inside: avoid;
+            }
+
+            .turno-table th,
+            .consorziato-table th {
                 padding: 3px 2px;
-                font-size: 10px;
+                font-size: 14px;
                 line-height: 1.1;
             }
             
-            .turno-table td {
+            .turno-table td,
+            .consorziato-table td {
                 padding: 2px 2px;
-                font-size: 10px;
+                font-size: 14px;
                 line-height: 1.1;
             }
             
-            /* Riduzione progressiva per tabelle con molte righe */
-            .turno-table tbody tr:nth-child(n+18) td,
-            .turno-table tbody tr:nth-child(n+18) th {
-                font-size: 9px;
-                padding: 2px 1px;
-                line-height: 1.05;
+            /* Repeat headers if table spans multiple pages */
+            .turno-table thead,
+            .consorziato-table thead {
+                display: table-header-group;
             }
-            
-            .turno-table tbody tr:nth-child(n+22) td,
-            .turno-table tbody tr:nth-child(n+22) th {
-                font-size: 8px;
-                padding: 1px;
-                line-height: 1;
-            }
-            
-            .turno-table tbody tr:nth-child(n+26) td,
-            .turno-table tbody tr:nth-child(n+26) th {
-                font-size: 7px;
-                padding: 1px;
-                line-height: 1;
-            }
-            
-            .consorziato-table {
-                font-size: 9px;
-            }
-            
-            .consorziato-header {
-                font-size: 12px;
-                padding: 6px;
-                margin-top: 10px;
-            }
-            
-            /* Numerazione pagine */
-            body {
-                counter-reset: page;
-            }
-            
-            .footer-print::after {
-                counter-increment: page;
-                content: "Pagina " counter(page);
-                position: absolute;
-                right: 15px;
-                bottom: 6px;
-                font-size: 9px;
+                        
+            .page-footer-print {
+                margin-top: auto;
+                display: block;
+                bottom: 5mm;
+                left: 0;
+                right: 0;
+                text-align: center;
+                font-size: 14px;
+                font-weight: bold;
+                color: #2c5282;
+                font-family: 'Calibri', Arial, sans-serif;
+                z-index: 9999;
+                padding: 3mm 0;
+                border-top: 2px solid #2c5282;
+                background-color: white;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Header ricorrente per la stampa -->
-    <div class="print-header">
-        <h1>CONSORZIO IRRIGUO "POZZO TREBBIÈ"</h1>
-        <h2>ORARIO ANNO <span id="printYear"></span></h2>
+    <!-- Elemento ricorrente visibile solo in stampa: H2 a sinistra, H1 a destra -->
+    <div id="printRecurring" class="print-recurring" aria-hidden="true">
+        <h2></h2>
+        <h1></h1>
     </div>
     <!-- Overlay di login -->
     <div id="loginOverlay" class="login-overlay">
@@ -618,8 +604,8 @@
     <!-- Container principale -->
     <div class="container hidden" id="mainContainer">
         <div class="header">
-            <h1>CONSORZIO IRRIGUO "POZZO TREBBIÈ"</h1>
-            <h2>ORARIO ANNO <span id="headerYear"></span></h2>
+            <h1>ORARIO ANNO <span id="headerYear"></span></h1>
+            <h2>CONSORZIO IRRIGUO "POZZO TREBBIÈ"</span></h2>
         </div>
 
         <div class="controls">
@@ -1263,7 +1249,8 @@
                          "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
             const { turni } = result;
             
-            turni.forEach(turno => {
+            for (let idx = 0; idx < turni.length; idx++) {
+                const turno = turni[idx];
                 const meseInizio = mesi[turno.meseInizio];
                 const meseFine = mesi[turno.meseFine];
                 const titoloTurno = `${meseInizio}/${meseFine}`;
@@ -1335,7 +1322,7 @@
                             <tr>
                                 <th class="num-col">N°</th>
                                 <th class="nome-col">COGNOME E NOME</th>
-                                <th class="ore-col">ORE</th>
+                                <th class="ore-col"></th>
                                 <th class="ora-col">DALLE ORE</th>
                                 <th class="data-col">DEL GIORNO</th>
                                 <th class="ora-col">ALLE ORE</th>
@@ -1348,8 +1335,14 @@
                     </table>
                 `;
                 
+                // Aggiungi numero di pagina visibile solo in stampa (nel footer fisso)
+                const pageFooter = document.createElement('div');
+                pageFooter.className = 'page-footer-print';
+                pageFooter.textContent = String(idx + 1);
+                turnoDiv.appendChild(pageFooter);
+
                 container.appendChild(turnoDiv);
-            });
+            }
         }
 
         function generaHTMLConsorziatiIndividuali(result, year) {
@@ -1387,7 +1380,7 @@
                 if (cons.turni.length === 0) return;
                 
                 const containerDiv = document.createElement('div');
-                containerDiv.className = 'consorziato-table-container';
+                containerDiv.className = 'consorziato-container';
                 
                 const nomeCompleto = cons.fruitore 
                     ? `${cons.nome} (ore usate da ${cons.fruitore})`
@@ -1645,6 +1638,18 @@
             alert('Consorziati salvati con successo! Premi "GENERA TURNI" per aggiornare il calcolo con i nuovi dati.');
         }
 
+        // Aggiorna il contenuto dell'intestazione ricorrente di stampa
+        function updatePrintRecurring() {
+            const printDiv = document.getElementById('printRecurring');
+            if (!printDiv) return;
+            const headerH1 = document.querySelector('.header h1');
+            const headerH2 = document.querySelector('.header h2');
+            const pH1 = printDiv.querySelector('h1');
+            const pH2 = printDiv.querySelector('h2');
+            if (headerH1 && pH1) pH1.textContent = headerH1.textContent;
+            if (headerH2 && pH2) pH2.textContent = headerH2.textContent.trim();
+        }
+
         function setupEventListeners() {
             document.getElementById('generateBtn').addEventListener('click', function() {
                 const year = parseInt(document.getElementById('yearSelect').value);
@@ -1674,6 +1679,9 @@
                         if (headerYearEl) headerYearEl.textContent = year;
                         const printYearEl = document.getElementById('printYear');
                         if (printYearEl) printYearEl.textContent = year;
+
+                        // Aggiorna l'intestazione ricorrente per la stampa
+                        try { updatePrintRecurring(); } catch(e) { /* ignore */ }
                         
                         // Genera la visualizzazione predefinita
                         aggiornaVisualizzazione();
@@ -1707,5 +1715,12 @@
 
         // Inizializzazione avviene dopo il login
     </script>
-</body>
+    </script>
+
+        <!-- Footer specifico per la stampa (posizionato fuori dal container per ripetizione corretta) -->
+        <div class="footer-print" aria-hidden="true">
+            <p></p>
+        </div>
+
+    </body>
 </html>
